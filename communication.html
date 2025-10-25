@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication - Duel Channel</title>
+    <link rel="stylesheet" href="mainstyles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <style>
+        /* ==================================================== */
+        /* Communication Page Specific Styles */
+        /* ==================================================== */
+        
+        /* Overrides for window layout */
+        .window-body {
+            display: block; 
+            padding: 0;
+            overflow-y: auto;
+        }
+        
+        .communication-content {
+            padding: 15px;
+        }
+        
+        /* ------------------------------------------- */
+        /* NEW: Return Button Style */
+        /* ------------------------------------------- */
+        .return-btn {
+            background-color: var(--medium-grey, #555); /* Base color */
+            color: var(--white, #fff);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            
+            /* NEW: Better Design */
+            border: 2px solid var(--primary-yellow, #ffc400); /* Yellow border for pop */
+            box-shadow: 2px 2px 0 var(--dark-grey, #333);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 0; /* Override inline style */
+        }
+
+        .return-btn:hover {
+            background-color: var(--primary-yellow, #ffc400);
+            color: var(--dark-grey, #333);
+            box-shadow: 0 0 0 transparent; /* Flat on hover */
+            transform: translate(2px, 2px); /* Click effect */
+        }
+        
+        /* ------------------------------------------- */
+        /* 1. Post Creation Area */
+        /* ------------------------------------------- */
+        .post-creation-area {
+            background-color: var(--white, #fff); /* Lighter background */
+            border: 2px solid var(--border-color, #1a1a1a);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 2px 2px 0 var(--medium-grey, #555);
+            direction: rtl;
+        }
+
+        .post-creation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-yellow, #ffc400);
+            background-size: cover;
+            background-position: center;
+            border: 2px solid var(--primary-yellow, #ffc400);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .user-avatar-small:hover {
+            transform: scale(1.1);
+            border-color: var(--dark-grey, #333);
+        }
+        
+        .post-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--light-grey, #ccc);
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 14px;
+            background-color: var(--white, #fff);
+            color: var(--dark-grey, #333);
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none; /* Hidden by default */
+            border: 1px solid var(--border-color, #1a1a1a);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btns-left {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .image-upload-btn, .post-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s, box-shadow 0.1s;
+        }
+
+        .image-upload-btn {
+            background-color: var(--medium-grey, #555);
+            color: var(--white, #fff);
+            border: none;
+        }
+        
+        .post-btn {
+            background-color: var(--primary-yellow, #ffc400);
+            color: var(--dark-grey, #333);
+            border: none;
+        }
+        
+        .post-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* ------------------------------------------- */
+        /* 2. Posts Feed Items */
+        /* ------------------------------------------- */
+        
+        .post-item {
+            background-color: var(--white, #fff);
+            border: 1px solid var(--light-grey, #ccc);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 1px 1px 0 var(--medium-grey, #555);
+            color: var(--dark-grey, #333);
+            direction: rtl;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .post-username {
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .post-username:hover {
+            color: var(--primary-yellow, #ffc400);
+        }
+        
+        .post-username span {
+            font-weight: normal;
+            font-size: 12px;
+            color: var(--medium-grey, #555);
+            display: block; /* Rank on new line if needed */
+        }
+        
+        .post-actions-menu {
+            margin-right: auto;
+            position: relative;
+        }
+        
+        .options-btn {
+            background: none;
+            border: none;
+            color: var(--medium-grey, #555);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--white, #fff);
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            left: 0; /* Align to the left (RTL support) */
+            top: 100%;
+            border-radius: 4px;
+            border: 1px solid var(--border-color, #1a1a1a);
+            transform: translateY(5px);
+        }
+
+        .dropdown-content button {
+            color: var(--dark-grey, #333);
+            padding: 10px 12px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: right;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dropdown-content button:hover {
+            background-color: var(--light-grey, #ccc);
+        }
+        
+        .delete-option {
+            color: var(--red, #f00) !important;
+        }
+        
+        .post-body p {
+            margin-bottom: 10px;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+        
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            cursor: zoom-in;
+            border: 1px solid var(--light-grey, #ccc);
+        }
+        
+        .post-footer {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--light-grey, #ccc);
+        }
+        
+        .like-btn, .comment-btn {
+            background: none;
+            border: none;
+            color: var(--medium-grey, #555);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .like-btn i, .comment-btn i {
+            margin-left: 5px;
+        }
+
+        .like-btn.liked {
+            color: var(--red, #f00);
+        }
+        
+        /* ------------------------------------------- */
+        /* 3. Hashtag Filtering Area */
+        /* ------------------------------------------- */
+
+        .hashtag-link {
+            color: var(--red, #f00); 
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .hashtag-link:hover {
+            color: var(--primary-yellow, #ffc400);
+            text-decoration: underline;
+        }
+        
+        .hashtag-filter-area {
+            display: flex; /* Ensure it uses flex when visible */
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ------------------------------------------- */
+        /* 4. Modals (Image, Comment, Delete) */
+        /* ------------------------------------------- */
+
+        /* General Modal Base */
+        .image-modal, .comment-modal, .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+
+        /* Image Modal Specifics */
+        .image-modal {
+            flex-direction: column;
+        }
+        
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .download-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            color: var(--primary-yellow, #ffc400);
+            font-size: 20px;
+            text-decoration: none;
+            z-index: 1001;
+        }
+
+        /* Comment Modal Specifics */
+        .comment-modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .comment-modal-header {
+            background-color: var(--dark-grey, #333);
+            color: var(--white, #fff);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-yellow, #ffc400);
+            position: relative;
+        }
+
+        .comment-modal-content {
+            background-color: var(--white, #fff);
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .fixed-post-view {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-grey, #ccc);
+            max-height: 25%;
+            overflow-y: auto;
+            /* Re-use post-item styles but remove border/shadow/margin */
+            color: var(--dark-grey, #333);
+        }
+        
+        .comments-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: var(--white, #fff);
+        }
+        
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--light-grey, #ccc);
+        }
+        
+        .comment-item-body {
+            flex-grow: 1;
+            padding-left: 10px;
+        }
+        
+        .comment-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .comment-username {
+            font-weight: bold;
+            color: var(--dark-grey, #333);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .comment-username:hover {
+            color: var(--primary-yellow, #ffc400);
+        }
+        
+        .comment-time {
+            color: var(--medium-grey, #555);
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            color: var(--dark-grey, #333);
+            white-space: pre-wrap;
+        }
+        
+        .comment-image-attachment {
+             max-width: 100%;
+             height: auto;
+             border-radius: 4px;
+             margin-top: 5px;
+             cursor: zoom-in;
+        }
+
+        /* Comment Input Area */
+        .comment-input-area {
+            border-top: 1px solid var(--light-grey, #ccc);
+            padding: 10px;
+            background-color: var(--medium-grey, #555);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        #reply-to-indicator {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--white, #fff);
+            display: flex;
+            align-items: center;
+        }
+
+        .attachment-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .comment-attachment-preview {
+            max-height: 50px;
+            max-width: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid var(--primary-yellow, #ffc400);
+        }
+        
+        .remove-attachment-btn {
+            color: var(--red, #f00);
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            right: 55px; /* Adjust position */
+        }
+        
+        .comment-input-controls {
+            display: flex;
+            align-items: flex-end; /* Align items to the bottom */
+            gap: 10px;
+        }
+
+        .comment-input-controls button {
+            background-color: var(--medium-grey, #555);
+            color: var(--white, #fff);
+            border: 1px solid var(--light-grey, #ccc);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            height: 40px;
+            flex-shrink: 0; /* Prevents button from shrinking */
+        }
+
+        .comment-input-controls textarea {
+            flex-grow: 1;
+            min-height: 40px;
+            max-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--light-grey, #ccc);
+            border-radius: 4px;
+            resize: none; /* Only allow vertical resizing */
+            font-size: 14px;
+            background-color: var(--white, #fff);
+            color: var(--dark-grey, #333);
+            overflow: auto;
+        }
+
+        .send-btn {
+            background-color: var(--primary-yellow, #ffc400) !important;
+            color: var(--dark-grey, #333) !important;
+            border: none !important;
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50% !important;
+            font-size: 18px;
+            box-shadow: 2px 2px 0 var(--dark-grey, #333);
+            transition: all 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Delete Confirm Modal Specifics */
+        .delete-confirm-card {
+            background-color: var(--white, #fff);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            color: var(--dark-grey, #333);
+        }
+
+        .delete-confirm-title {
+            color: var(--red, #f00);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .delete-confirm-message {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .delete-confirm-actions button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        
+        .cancel-delete-btn {
+            background-color: var(--medium-grey, #555);
+            color: var(--white, #fff);
+            border: none;
+        }
+
+        .confirm-delete-btn {
+            background-color: var(--red, #f00);
+            color: var(--white, #fff);
+            border: none;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="game-interface-container">
+        <div class="main-content-placeholder"></div>
+
+        <div class="popup-window">
+            
+            <div class="window-header">
+                 <span class="header-icon"></span>
+                <span class="header-title" style="padding-left: 10px;">Communication Center (Duel Channel)</span>
+                
+                <a href="main.html" style="text-decoration: none; margin-left: auto;">
+                    <button class="return-btn">Return <i class="fas fa-arrow-right"></i></button>
+                </a>
+                
+                <div class="window-controls"></div>
+            </div>
+
+            <div class="window-body">
+                <div class="communication-content">
+                    
+                    <div class="post-creation-area">
+                        <div class="post-creation-header">
+                             <div class="user-avatar-small" id="my-avatar"></div>
+                             <span style="font-weight: bold; color: var(--dark-grey);">What's on your mind?</span>
+                        </div>
+                        
+                        <textarea class="post-input" id="post-text-input" placeholder="Share with the Duel Channel community... Use #hashtag for topics."></textarea>
+                        
+                        <img id="image-preview" class="image-preview" src="" alt="Image Preview">
+                        
+                        <div class="post-actions">
+                            <div class="action-btns-left">
+                                <input type="file" id="image-file-input" accept="image/*" style="display: none;">
+                                <button class="image-upload-btn" id="select-image-btn"><i class="fas fa-image"></i> Image</button>
+                            </div>
+                            <button class="post-btn" id="publish-post-btn" disabled>Publish Post</button>
+                        </div>
+                    </div>
+                    
+                    <div class="hashtag-filter-area" id="hashtag-filter-area" style="display: none; padding: 10px; background-color: var(--medium-grey); border-radius: 4px; margin-bottom: 15px; color: var(--white); border: 1px solid var(--primary-yellow); align-items: center;">
+                        <span id="hashtag-status" style="font-weight: bold;"></span>
+                        <span id="hashtag-count" style="margin: 0 10px; padding: 0 5px; background-color: var(--primary-yellow); color: var(--dark-grey); border-radius: 4px;"></span>
+                        <button onclick="clearHashtagFilter()" style="background-color: var(--red); color: var(--white); border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; border-radius: 20px; margin-right: auto; margin-left: 5px;">
+                            <i class="fas fa-times"></i> Clear Filter
+                        </button>
+                    </div>
+
+                    <div class="posts-feed" id="posts-feed">
+                        <p style="text-align: center; color: var(--medium-grey);">Loading posts...</p>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            </div>
+        
+        <div class="action-buttons-container">
+            <a href="stageselect.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button join-group">
+                <span class="button-text">Start</span>
+            </button>
+            </a>
+            <a href="communication.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button create-group" style="background-color: #c9c9c9; opacity: 0.8; ">
+                <span class="button-text">Communication</span>
+            </button>
+            </a>
+          <a href="profile.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button go-streaming">
+                <span class="button-text">Profile</span>
+            </button>
+          </a>
+          <a href="stageselect.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button join-event">
+                <span class="button-text">Setting</span>
+            </button>
+          </a>
+        </div>
+        
+    </div>
+    
+    <div id="image-modal" class="image-modal">
+        <span class="close-btn" id="close-modal-btn">&times;</span>
+        <a id="download-image-btn" class="download-btn" href="#" download>
+             <i class="fas fa-download"></i> Download
+        </a>
+        <img class="modal-content" id="modal-image">
+    </div>
+
+    <div id="comment-modal" class="comment-modal">
+        <div class="comment-modal-content">
+            <div class="comment-modal-header">
+                <span class="close-btn" onclick="closeCommentModal()" style="top: 0; right: 10px; position: absolute; font-size: 30px; line-height: 1;">&times;</span>
+                <span style="font-weight: bold;">Comments</span>
+            </div>
+            
+            <div class="fixed-post-view" id="modal-post-view">
+                <p>Loading post...</p>
+            </div>
+            
+            <div class="comments-list" id="comments-list">
+                 <p style="text-align: center; color: var(--light-grey);">No comments yet.</p>
+            </div>
+            
+            <div class="comment-input-area">
+                 <div id="reply-to-indicator" style="display: none;">
+                    Replying to <span id="reply-to-user-name" style="font-weight: bold; color: var(--primary-yellow);"></span>
+                    <span onclick="cancelReply()" style="margin-left: 10px; cursor: pointer; color: var(--light-grey);"><i class="fas fa-times"></i></span>
+                </div>
+                
+                 <div class="attachment-container" id="comment-attachment-container" style="display: none;">
+                    <img id="comment-attachment-preview" class="comment-attachment-preview" src="" alt="Comment Attachment">
+                    <span class="remove-attachment-btn" id="remove-comment-attachment">&times;</span>
+                </div>
+                
+                <div class="comment-input-controls">
+                    
+                    <input type="file" id="comment-file-input" accept="image/*" style="display: none;">
+                    <button id="select-comment-image-btn">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    
+                    <textarea id="comment-text-input" placeholder="Add a comment... Use #hashtag" rows="1"></textarea>
+                    
+                    <button class="send-btn" id="publish-comment-btn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="delete-confirm-modal" class="custom-modal">
+        <div class="delete-confirm-card post-item">
+            <h3 class="delete-confirm-title"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h3>
+            <p class="delete-confirm-message">Are you sure you want to permanently delete this post and all its comments? This action cannot be undone.</p>
+            <div class="delete-confirm-actions">
+                <button class="action-button cancel-delete-btn" onclick="closeDeleteConfirmModal()">Cancel</button>
+                <button class="action-button confirm-delete-btn" id="final-confirm-delete-btn">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+    </body>
+
+<script>
+    // ****************************************************
+    // 2. CONFIGURATION & INITIALIZATION
+    // ****************************************************
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyChvtHVmDn-jGkPCUgeyTOWF1GwwC5Se7g",
+        authDomain: "devgame-69208.firebaseapp.com",
+        projectId: "devgame-69208",
+        storageBucket: "devgame-69208.firebasestorage.app",
+        messagingSenderId: "359568777421",
+        appId: "1:359568777421:web:0c30c804aa0ffe95608984",
+        measurementId: "G-D6YELCJ51C"
+    };
+
+    // Cloudinary Config
+    const CLOUDINARY_CLOUD_NAME = "dsvxv96q8"; 
+    const CLOUDINARY_UPLOAD_PRESET = "DevGame"; 
+
+    // localStorage Keys - UPDATED TO MATCH PROFILE.HTML
+    const USER_ID_KEY = 'game_user_id'; 
+    const USER_NAME_KEY = 'game_user_name';
+
+    // NEW: User-specific keys for profile pictures - MATCHING PROFILE.HTML
+    function getProfilePicKey() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest';
+        return `profile_pic_${userId}`;
+    }
+
+    function getGooglePhotoKey() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest';
+        return `google_photo_${userId}`;
+    }
+
+    // Function to get current user data - UPDATED TO MATCH PROFILE.HTML
+    function getCurrentUserData() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest_user_' + Math.random().toString(16).slice(2, 8);
+        const userName = localStorage.getItem(USER_NAME_KEY) || 'Guest User';
+        
+        // Get user-specific profile picture - MATCHING PROFILE.HTML SYSTEM
+        const profilePicKey = getProfilePicKey();
+        const googlePhotoKey = getGooglePhotoKey();
+        const userProfilePic = localStorage.getItem(profilePicKey);
+        const userGooglePhoto = localStorage.getItem(googlePhotoKey);
+        
+        return {
+            id: userId,
+            name: userName,
+            // Use the new user-specific system first, then fallback to old system for compatibility
+            avatar: userProfilePic || userGooglePhoto || localStorage.getItem('game_profile_pic_url') || 'https://via.placeholder.com/100/ffc400/333?text=G'
+        };
+    }
+
+    // Function to migrate old data to new system - NEW
+    function migrateOldProfileData() {
+        const oldProfilePic = localStorage.getItem('game_profile_pic_url');
+        const oldGooglePhoto = localStorage.getItem('game_google_photo_url');
+        
+        if (oldProfilePic) {
+            const profilePicKey = getProfilePicKey();
+            localStorage.setItem(profilePicKey, oldProfilePic);
+            localStorage.removeItem('game_profile_pic_url');
+        }
+        
+        if (oldGooglePhoto) {
+            const googlePhotoKey = getGooglePhotoKey();
+            localStorage.setItem(googlePhotoKey, oldGooglePhoto);
+            localStorage.removeItem('game_google_photo_url');
+        }
+    }
+
+    let CURRENT_USER = getCurrentUserData();
+    
+    if (!localStorage.getItem(USER_ID_KEY)) {
+         localStorage.setItem(USER_ID_KEY, CURRENT_USER.id);
+    }
+
+    // Initialize Firebase
+    if (firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    let currentPostIdForComments = null; 
+    let postIdToDelete = null; 
+    let commentToReplyTo = null; 
+    let currentHashtagFilter = null; 
+
+    // ****************************************************
+    // NEW: Function to view user profile
+    // ****************************************************
+    function viewUserProfile(userId, userName, userAvatar) {
+        // Don't open profile if it's the current user
+        if (userId === CURRENT_USER.id) {
+            window.location.href = 'profile.html';
+            return;
+        }
+        
+        const params = new URLSearchParams({
+            user_id: userId,
+            user_name: userName,
+            user_avatar: userAvatar
+        });
+        window.location.href = `profile.html?${params.toString()}`;
+    }
+
+    // ****************************************************
+    // 3. UTILITY FUNCTIONS (UPDATED FOR HASHTAGS)
+    // ****************************************************
+    
+    // Function to calculate time since post
+    function timeSince(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        let interval = Math.floor(seconds / 31536000);
+
+        if (interval >= 1) {
+            return interval + (interval === 1 ? " year ago" : " years ago");
+        }
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1) {
+            return interval + (interval === 1 ? " month ago" : " months ago");
+        }
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) {
+            return interval + (interval === 1 ? " day ago" : " days ago");
+        }
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1) {
+            return interval + (interval === 1 ? " hour ago" : " hours ago");
+        }
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1) {
+            return interval + (interval === 1 ? " minute ago" : " minutes ago");
+        }
+        return "Just now";
+    }
+
+    // Function to toggle the options dropdown visibility
+    window.toggleDropdown = function(button) {
+        const dropdown = button.nextElementSibling;
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.dropdown-content').forEach(d => {
+            if (d !== dropdown) {
+                d.style.display = 'none';
+            }
+        });
+
+        // Toggle the display of the current dropdown
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        } else {
+            dropdown.style.display = 'block';
+        }
+    }
+    
+    // Function to extract hashtags from text and linkify them
+    function extractAndLinkHashtags(text) {
+        // Regex to find # followed by one or more letters, numbers, or underscore (Arabic/English support)
+        const hashtagRegex = /#([\w\u0621-\u064A]+)/g; 
+        const extractedTags = new Set();
+        
+        // Replace hashtags with clickable links
+        const linkedText = text.replace(hashtagRegex, (match, tag) => {
+            const cleanTag = tag.toLowerCase(); 
+            extractedTags.add(cleanTag); // Store the tag without the '#'
+            // Return the clickable link HTML, passing the clean tag to filterByHashtag
+            return `<a href="#" class="hashtag-link" onclick="event.preventDefault(); filterByHashtag('${cleanTag}')">#${tag}</a>`;
+        });
+        
+        return { linkedText: linkedText, tags: Array.from(extractedTags) };
+    }
+
+    // ****************************************************
+    // 4. CLOUDINARY UPLOAD LOGIC
+    // ****************************************************
+
+    function uploadImageToCloudinary(file) {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(async response => {
+                const data = await response.json(); 
+                if (!response.ok) {
+                    const errorMessage = data.error && data.error.message ? data.error.message : `Upload failed with status: ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+                resolve(data.secure_url); 
+            })
+            .catch(error => {
+                console.error('Cloudinary Upload Error:', error);
+                reject(error);
+            });
+        });
+    }
+    
+    // ****************************************************
+    // 5. POST PUBLISHING 
+    // ****************************************************
+    
+    async function publishPost() {
+        // Refresh CURRENT_USER data before publishing in case it was updated on another tab
+        CURRENT_USER = getCurrentUserData();
+        
+        const textInput = document.getElementById('post-text-input');
+        const fileInput = document.getElementById('image-file-input');
+        const publishBtn = document.getElementById('publish-post-btn');
+        const postContent = textInput.value.trim();
+        const imageFile = fileInput.files[0];
+
+        if (!postContent && !imageFile) return;
+        
+        const { linkedText, tags } = extractAndLinkHashtags(postContent);
+
+        publishBtn.disabled = true;
+        publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
+
+        try {
+            let imageUrl = '';
+            
+            if (imageFile) {
+                imageUrl = await uploadImageToCloudinary(imageFile);
+            }
+            
+            await db.collection('posts').add({
+                userId: CURRENT_USER.id,
+                userName: CURRENT_USER.name,
+                userAvatar: CURRENT_USER.avatar, // Use the latest avatar at time of post creation
+                content: postContent, 
+                linkedContent: linkedText, 
+                hashtags: tags, 
+                imageUrl: imageUrl,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                likeCount: 0,
+                commentCount: 0, 
+                likes: {}
+            });
+
+            // Reset form and UI
+            textInput.value = '';
+            fileInput.value = ''; 
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('image-preview').src = '';
+
+        } catch (error) {
+            alert(`Failed to publish post: ${error.message}`);
+            console.error("Publish Post Error:", error);
+        } finally {
+            publishBtn.innerHTML = 'Publish Post';
+            publishBtn.disabled = true; 
+        }
+    }
+
+    // ****************************************************
+    // 6. POST FEED & DELETION LOGIC (UPDATED FOR DYNAMIC AVATAR AND PROFILE LINKS)
+    // ****************************************************
+
+    // Function to create a single post HTML element
+    function createPostElement(post) {
+        const postElement = document.createElement('div');
+        postElement.className = 'post-item';
+        postElement.setAttribute('data-post-id', post.id);
+
+        // Check if the current user is the author of the post 
+        const isAuthor = post.userId === CURRENT_USER.id;
+        
+        // NEW: If author is CURRENT_USER, use the LATEST avatar from localStorage
+        const displayAvatar = isAuthor ? CURRENT_USER.avatar : post.userAvatar; 
+
+        // Build the options menu HTML 
+        let optionsMenuHtml = '';
+        if (isAuthor) {
+            optionsMenuHtml = `
+                <div class="post-actions-menu">
+                    <button class="options-btn" onclick="toggleDropdown(this)">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="delete-option" onclick="openDeleteConfirmModal('${post.id}')">
+                            <i class="fas fa-trash"></i> Delete Post
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const likedByCurrentUser = post.likes && post.likes[CURRENT_USER.id] === true;
+        const likeCount = post.likeCount || 0;
+        
+        const postDate = post.timestamp ? post.timestamp.toDate() : new Date();
+        const timeAgo = timeSince(postDate);
+
+        let imageHtml = '';
+        if (post.imageUrl) {
+            imageHtml = `<img src="${post.imageUrl}" class="post-image" onclick="openImageModal('${post.imageUrl}')" alt="Post Image">`;
+        }
+        
+        const displayContent = post.linkedContent 
+            ? post.linkedContent 
+            : extractAndLinkHashtags(post.content).linkedText;
+        
+        postElement.innerHTML = `
+            <div class="post-header">
+                <div class="user-avatar-small" 
+                     style="background-image: url('${displayAvatar}')"
+                     onclick="viewUserProfile('${post.userId}', '${post.userName}', '${post.userAvatar}')">
+                </div>
+                <span class="post-username" onclick="viewUserProfile('${post.userId}', '${post.userName}', '${post.userAvatar}')">
+                    ${post.userName} <span>${post.userRank || 'Community Member'}</span>
+                </span>
+                ${optionsMenuHtml} </div>
+            <div class="post-body">
+                <p>${displayContent.replace(/\n/g, '<br>')}</p>
+                ${imageHtml}
+            </div>
+            <div class="post-footer">
+                <button class="like-btn ${likedByCurrentUser ? 'liked' : ''}" onclick="toggleLike('${post.id}')"> 
+                    <i class="fas fa-heart"></i> <span id="like-count-${post.id}">${likeCount}</span> Likes
+                </button>
+                <button class="comment-btn" onclick="openCommentModal('${post.id}')">
+                    <i class="fas fa-comment"></i> <span id="comment-count-${post.id}">${post.commentCount || 0}</span> Comments
+                </button>
+                <span style="margin-left: auto; font-size: 10px;">${timeAgo}</span>
+            </div>
+        `;
+        return postElement;
+    }
+
+    // Function to handle filtering and rendering posts 
+    function renderPosts() {
+        // IMPORTANT: Update CURRENT_USER data before rendering to get the latest avatar
+        CURRENT_USER = getCurrentUserData(); 
+        document.getElementById('my-avatar').style.backgroundImage = `url('${CURRENT_USER.avatar}')`;
+        // Make current user avatar clickable to own profile
+        document.getElementById('my-avatar').onclick = () => window.location.href = 'profile.html';
+
+        const feed = document.getElementById('posts-feed');
+        const filterArea = document.getElementById('hashtag-filter-area');
+        const hashtagStatus = document.getElementById('hashtag-status');
+        const hashtagCount = document.getElementById('hashtag-count');
+        
+        let query = db.collection('posts').orderBy('timestamp', 'desc');
+
+        if (currentHashtagFilter) {
+            query = db.collection('posts')
+                      .where('hashtags', 'array-contains', currentHashtagFilter)
+                      .orderBy('timestamp', 'desc');
+            
+            filterArea.style.display = 'flex'; 
+            hashtagStatus.textContent = `Showing posts with #${currentHashtagFilter}:`;
+            hashtagCount.textContent = 'Counting...'; 
+        } else {
+            filterArea.style.display = 'none'; 
+        }
+        
+        query.onSnapshot((snapshot) => {
+            feed.innerHTML = ''; 
+            
+            if (currentHashtagFilter) {
+                 hashtagCount.textContent = `${snapshot.size} Post(s)`;
+            }
+
+            if (snapshot.empty) {
+                 feed.innerHTML = '<p style="text-align: center; color: var(--medium-grey);">No posts found.</p>';
+                 return;
+            }
+
+            snapshot.forEach((doc) => {
+                const postData = doc.data();
+                if (postData.commentCount === undefined) {
+                    postData.commentCount = 0;
+                }
+                const post = { id: doc.id, ...postData };
+                const postElement = createPostElement(post);
+                feed.appendChild(postElement);
+            });
+        }, (error) => {
+            console.error("Error listening to posts: ", error);
+            feed.innerHTML = `<p style="text-align: center; color: var(--red);">Error loading posts. Check Firebase Security Rules or Browser Console: ${error.message}</p>`;
+        });
+    }
+
+    window.filterByHashtag = function(tag) {
+        currentHashtagFilter = tag;
+        renderPosts();
+        window.scrollTo(0, 0); 
+    }
+
+    window.clearHashtagFilter = function() {
+        currentHashtagFilter = null;
+        renderPosts();
+    }
+    
+    // Toggle Like functionality (unchanged)
+    window.toggleLike = async function(postId) {
+        const postRef = db.collection('posts').doc(postId);
+        const postDoc = await postRef.get();
+        if (!postDoc.exists) return;
+
+        const postData = postDoc.data();
+        let likes = postData.likes || {};
+        let likeCount = postData.likeCount || 0;
+        
+        const likeCountSpan = document.getElementById(`like-count-${postId}`);
+        const likeButton = document.querySelector(`.post-item[data-post-id="${postId}"] .like-btn`);
+
+        if (likes[CURRENT_USER.id]) {
+            // Unlike
+            delete likes[CURRENT_USER.id];
+            likeCount--;
+            likeButton.classList.remove('liked');
+        } else {
+            // Like
+            likes[CURRENT_USER.id] = true;
+            likeCount++;
+            likeButton.classList.add('liked');
+        }
+
+        likeCountSpan.textContent = likeCount;
+
+        await postRef.update({
+            likes: likes,
+            likeCount: likeCount
+        });
+    }
+
+    // Delete Modal Handlers (unchanged)
+    window.openDeleteConfirmModal = function(postId) {
+        postIdToDelete = postId;
+        document.getElementById('delete-confirm-modal').style.display = 'flex';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+    }
+
+    window.closeDeleteConfirmModal = function() {
+        postIdToDelete = null;
+        document.getElementById('delete-confirm-modal').style.display = 'none';
+    }
+
+    window.confirmDeletePost = async function() {
+        if (!postIdToDelete) return;
+        
+        const deleteBtn = document.getElementById('final-confirm-delete-btn');
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+        
+        try {
+            // 1. Delete all comments in the subcollection 
+            const commentsSnapshot = await db.collection('posts').doc(postIdToDelete).collection('comments').get();
+            const batch = db.batch();
+            commentsSnapshot.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+
+            // 2. Delete the main post document
+            await db.collection('posts').doc(postIdToDelete).delete();
+
+            // 3. Close modal 
+            closeDeleteConfirmModal();
+            
+        } catch (error) {
+            alert(`Failed to delete post: ${error.message}`);
+            console.error("Delete Post Error:", error);
+        } finally {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Delete Permanently';
+        }
+    }
+
+    // ****************************************************
+    // 7. COMMENT LOGIC (UPDATED FOR DYNAMIC AVATAR AND PROFILE LINKS)
+    // ****************************************************
+    
+    // Opens the comment modal and renders post/comments 
+    window.openCommentModal = function(postId) {
+        // Refresh CURRENT_USER data before opening modal
+        CURRENT_USER = getCurrentUserData(); 
+        
+        currentPostIdForComments = postId;
+        document.getElementById('comment-modal').style.display = 'flex';
+        
+        // 1. Render the main post inside the modal
+        renderPostInModal(postId); 
+        
+        // 2. Render comments for this post
+        renderComments(postId);
+    }
+    
+    // Closes the comment modal 
+    window.closeCommentModal = function() {
+        currentPostIdForComments = null;
+        cancelReply();
+        document.getElementById('comment-modal').style.display = 'none';
+        document.getElementById('comments-list').innerHTML = '<p style="text-align: center; color: var(--light-grey);">No comments yet.</p>';
+    }
+
+    // Displays the main post in the modal header (unchanged logic, only uses stored post data)
+    async function renderPostInModal(postId) {
+        const postView = document.getElementById('modal-post-view');
+        postView.innerHTML = '<p>Loading post...</p>';
+        
+        const postDoc = await db.collection('posts').doc(postId).get();
+        if (!postDoc.exists) {
+            postView.innerHTML = '<p>Post not found.</p>';
+            return;
+        }
+
+        const post = { id: postDoc.id, ...postDoc.data() };
+        
+        let imageHtml = '';
+        if (post.imageUrl) {
+            imageHtml = `<img src="${post.imageUrl}" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 5px; border: 1px solid var(--light-grey);" onclick="openImageModal('${post.imageUrl}')" alt="Post Image">`;
+        }
+        
+        const displayContent = post.linkedContent 
+            ? post.linkedContent 
+            : extractAndLinkHashtags(post.content).linkedText;
+
+        // Determine post author avatar (dynamic for current user)
+        const isPostAuthor = post.userId === CURRENT_USER.id;
+        const postDisplayAvatar = isPostAuthor ? CURRENT_USER.avatar : post.userAvatar; 
+
+        postView.innerHTML = `
+             <div class="post-header" style="margin-bottom: 5px;">
+                <div class="user-avatar-small" 
+                     style="background-image: url('${postDisplayAvatar}')"
+                     onclick="viewUserProfile('${post.userId}', '${post.userName}', '${post.userAvatar}')">
+                </div>
+                <span class="comment-username" onclick="viewUserProfile('${post.userId}', '${post.userName}', '${post.userAvatar}')">${post.userName}</span>
+             </div>
+             <p style="font-size: 14px; margin-bottom: 5px; color: var(--dark-grey);">${displayContent.replace(/\n/g, '<br>')}</p>
+             ${imageHtml}
+        `;
+    }
+
+    // Creates the HTML element for a single comment 
+    function createCommentElement(comment, postId) {
+        const commentElement = document.createElement('div');
+        commentElement.className = 'comment-item';
+        
+        const likedByCurrentUser = comment.likes && comment.likes[CURRENT_USER.id] === true;
+        const likeCount = comment.likeCount || 0;
+        const commentDate = comment.timestamp ? comment.timestamp.toDate() : new Date();
+
+        // Check if the current user is the author of the comment
+        const isAuthor = comment.userId === CURRENT_USER.id;
+        
+        // NEW: If author is CURRENT_USER, use the LATEST avatar from localStorage
+        const displayAvatar = isAuthor ? CURRENT_USER.avatar : comment.userAvatar; 
+
+        let imageAttachment = '';
+        if (comment.imageUrl) {
+            imageAttachment = `<img src="${comment.imageUrl}" class="comment-image-attachment" onclick="openImageModal('${comment.imageUrl}')" alt="Comment Attachment">`;
+        }
+        
+        let replyToHtml = '';
+        if (comment.parentUserName) {
+            replyToHtml = `<p style="font-size: 10px; color: var(--primary-yellow); margin-bottom: 5px;">Replying to <span style="font-weight: bold;">@${comment.parentUserName}</span></p>`;
+        }
+        
+        const displayCommentContent = comment.linkedContent 
+            ? comment.linkedContent 
+            : extractAndLinkHashtags(comment.content).linkedText;
+
+        commentElement.innerHTML = `
+            <div class="user-avatar-small" 
+                 style="background-image: url('${displayAvatar}')"
+                 onclick="viewUserProfile('${comment.userId}', '${comment.userName}', '${comment.userAvatar}')">
+            </div>
+            <div class="comment-item-body">
+                <div class="comment-meta">
+                    <span class="comment-username" onclick="viewUserProfile('${comment.userId}', '${comment.userName}', '${comment.userAvatar}')">${comment.userName}</span>
+                    <span class="comment-time">${timeSince(commentDate)}</span>
+                </div>
+                ${replyToHtml} 
+                <p class="comment-text">${displayCommentContent.replace(/\n/g, '<br>')}</p>
+                ${imageAttachment}
+                <div class="comment-actions" style="display: flex; gap: 15px; margin-top: 5px;">
+                    <button class="comment-like-btn ${likedByCurrentUser ? 'liked' : ''}" 
+                            onclick="toggleCommentLike('${postId}', '${comment.id}')"
+                            style="font-size: 12px; color: var(--medium-grey); background: none; border: none; cursor: pointer;">
+                        <i class="fas fa-heart"></i> <span id="comment-like-count-${comment.id}">${likeCount}</span>
+                    </button>
+                    <button class="comment-reply-btn" onclick="startReplyToComment('${comment.id}', '${comment.userName}')"
+                            style="font-size: 12px; color: var(--medium-grey); background: none; border: none; cursor: pointer;">
+                        <i class="fas fa-reply"></i> Reply
+                    </button>
+                </div>
+            </div>
+        `;
+        return commentElement;
+    }
+
+    // Renders comments for the currently open post (unchanged logic)
+    function renderComments(postId) {
+        const commentsList = document.getElementById('comments-list');
+        
+        db.collection('posts').doc(postId).collection('comments')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot((snapshot) => {
+                commentsList.innerHTML = '';
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<p style="text-align: center; color: var(--light-grey);">No comments yet.</p>';
+                    return;
+                }
+                
+                snapshot.forEach((doc) => {
+                    const comment = { id: doc.id, ...doc.data() };
+                    const commentElement = createCommentElement(comment, postId);
+                    commentsList.appendChild(commentElement);
+                });
+                
+                commentsList.scrollTop = commentsList.scrollHeight;
+
+            }, (error) => {
+                console.error("Error listening to comments: ", error);
+                commentsList.innerHTML = `<p style="text-align: center; color: var(--red);">Error loading comments.</p>`;
+            });
+    }
+
+    // Enables reply mode (unchanged)
+    window.startReplyToComment = function(commentId, userName) {
+        commentToReplyTo = { id: commentId, userName: userName };
+        document.getElementById('reply-to-user-name').textContent = `@${userName}`;
+        document.getElementById('reply-to-indicator').style.display = 'flex';
+        document.getElementById('comment-text-input').focus();
+    }
+    
+    // Disables reply mode (unchanged)
+    window.cancelReply = function() {
+        commentToReplyTo = null;
+        document.getElementById('reply-to-indicator').style.display = 'none';
+        document.getElementById('reply-to-user-name').textContent = '';
+    }
+
+    // Handles publishing a new comment 
+    async function publishComment() {
+        if (!currentPostIdForComments) return;
+        
+        // Refresh CURRENT_USER data before publishing
+        CURRENT_USER = getCurrentUserData(); 
+
+        const textInput = document.getElementById('comment-text-input');
+        const fileInput = document.getElementById('comment-file-input');
+        const publishBtn = document.getElementById('publish-comment-btn');
+        const commentContent = textInput.value.trim();
+        const imageFile = fileInput.files[0];
+
+        if (!commentContent && !imageFile) return;
+
+        const { linkedText, tags } = extractAndLinkHashtags(commentContent);
+
+        publishBtn.disabled = true;
+        publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
+
+        try {
+            let imageUrl = '';
+            
+            // 1. Upload image to Cloudinary if file exists
+            if (imageFile) {
+                imageUrl = await uploadImageToCloudinary(imageFile);
+            }
+            
+            // Prepare comment data
+            const commentData = {
+                userId: CURRENT_USER.id,
+                userName: CURRENT_USER.name,
+                userAvatar: CURRENT_USER.avatar, // Use the latest avatar at time of comment creation
+                content: commentContent, 
+                linkedContent: linkedText, 
+                hashtags: tags, 
+                imageUrl: imageUrl,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                likeCount: 0,
+                likes: {}
+            };
+            
+            // Add reply metadata if necessary
+            if (commentToReplyTo) {
+                commentData.parentCommentId = commentToReplyTo.id;
+                commentData.parentUserName = commentToReplyTo.userName;
+            }
+            
+            // 2. Save comment data to Firestore subcollection
+            await db.collection('posts').doc(currentPostIdForComments).collection('comments').add(commentData);
+            
+            // 3. Update the parent post's comment count 
+            const postRef = db.collection('posts').doc(currentPostIdForComments);
+            await postRef.update({
+                commentCount: firebase.firestore.FieldValue.increment(1)
+            });
+
+            // 4. Reset form and UI
+            textInput.value = '';
+            fileInput.value = ''; 
+            document.getElementById('comment-attachment-container').style.display = 'none';
+            document.getElementById('comment-attachment-preview').src = '';
+            cancelReply(); 
+            
+        } catch (error) {
+            alert(`Failed to publish comment: ${error.message}`);
+            console.error("Publish Comment Error:", error);
+        } finally {
+            publishBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            publishBtn.disabled = true; 
+        }
+    }
+
+    // Toggle Like for Comments (unchanged)
+    window.toggleCommentLike = async function(postId, commentId) {
+        const commentRef = db.collection('posts').doc(postId).collection('comments').doc(commentId);
+        const commentDoc = await commentRef.get();
+        if (!commentDoc.exists) return;
+
+        const commentData = commentDoc.data();
+        let likes = commentData.likes || {};
+        let likeCount = commentData.likeCount || 0;
+        
+        const likeCountSpan = document.getElementById(`comment-like-count-${commentId}`);
+        const likeButton = document.querySelector(`#comment-like-count-${commentId}`).closest('.comment-like-btn');
+
+        if (likes[CURRENT_USER.id]) {
+            // Unlike
+            delete likes[CURRENT_USER.id];
+            likeCount--;
+            likeButton.classList.remove('liked');
+        } else {
+            // Like
+            likes[CURRENT_USER.id] = true;
+            likeCount++;
+            likeButton.classList.add('liked');
+        }
+
+        likeCountSpan.textContent = likeCount;
+
+        await commentRef.update({
+            likes: likes,
+            likeCount: likeCount
+        });
+    }
+
+    // ****************************************************
+    // 8. EVENT LISTENERS AND MODAL HANDLERS
+    // ****************************************************
+    
+    // Checks comment input for enabling/disabling send button (unchanged)
+    function checkCommentInput() {
+        const textInput = document.getElementById('comment-text-input');
+        const fileInput = document.getElementById('comment-file-input');
+        const publishBtn = document.getElementById('publish-comment-btn');
+        
+        if (textInput.value.trim() !== '' || fileInput.files.length > 0) {
+             publishBtn.disabled = false;
+        } else {
+             publishBtn.disabled = true;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // A. Migrate old data to new system
+        migrateOldProfileData();
+        
+        // B. Set current user avatar in post creation area
+        // Refresh and set on DOM load
+        CURRENT_USER = getCurrentUserData(); 
+        document.getElementById('my-avatar').style.backgroundImage = `url('${CURRENT_USER.avatar}')`;
+        // Make current user avatar clickable to own profile
+        document.getElementById('my-avatar').onclick = () => window.location.href = 'profile.html';
+        
+        // C. Bind publish post button
+        document.getElementById('publish-post-btn').addEventListener('click', publishPost);
+        
+        // D. Bind publish comment button
+        document.getElementById('publish-comment-btn').addEventListener('click', publishComment);
+        
+        // E. Bind the final delete confirmation button
+        document.getElementById('final-confirm-delete-btn').addEventListener('click', confirmDeletePost);
+
+        // F. Post text input logic (unchanged)
+        const postTextInput = document.getElementById('post-text-input');
+        postTextInput.addEventListener('input', () => {
+            const fileInput = document.getElementById('image-file-input');
+            const publishBtn = document.getElementById('publish-post-btn');
+            if (postTextInput.value.trim() !== '' || fileInput.files.length > 0) {
+                 publishBtn.disabled = false;
+            } else {
+                 publishBtn.disabled = true;
+            }
+        });
+
+        // G. Post image upload & preview logic (unchanged)
+        const postFileInput = document.getElementById('image-file-input');
+        const postSelectImageBtn = document.getElementById('select-image-btn');
+        const postImagePreview = document.getElementById('image-preview');
+        
+        postSelectImageBtn.addEventListener('click', () => postFileInput.click());
+        
+        postFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const publishBtn = document.getElementById('publish-post-btn');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    postImagePreview.src = e.target.result;
+                    postImagePreview.style.display = 'block';
+                    publishBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                postImagePreview.src = '';
+                postImagePreview.style.display = 'none';
+                if (postTextInput.value.trim() === '') {
+                    publishBtn.disabled = true;
+                }
+            }
+        });
+        
+        // H. Comment Input and Attachment Logic (unchanged)
+        const commentTextInput = document.getElementById('comment-text-input');
+        const commentFileInput = document.getElementById('comment-file-input');
+        const commentAttachmentContainer = document.getElementById('comment-attachment-container');
+        const commentAttachmentPreview = document.getElementById('comment-attachment-preview');
+        const removeCommentAttachmentBtn = document.getElementById('remove-comment-attachment');
+        
+        commentTextInput.addEventListener('input', checkCommentInput);
+        document.getElementById('select-comment-image-btn').addEventListener('click', () => commentFileInput.click());
+        
+        commentFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    commentAttachmentPreview.src = e.target.result;
+                    commentAttachmentContainer.style.display = 'flex';
+                    checkCommentInput();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                commentAttachmentContainer.style.display = 'none';
+                commentAttachmentPreview.src = '';
+                checkCommentInput();
+            }
+        });
+        
+        removeCommentAttachmentBtn.addEventListener('click', () => {
+             commentFileInput.value = ''; 
+             commentAttachmentContainer.style.display = 'none';
+             commentAttachmentPreview.src = '';
+             checkCommentInput();
+        });
+
+        // I. Start rendering posts
+        renderPosts();
+    });
+
+    // J. Image Modal Functionality (Global)
+    const imageModal = document.getElementById('image-modal');
+    const modalImg = document.getElementById("modal-image");
+    const downloadBtn = document.getElementById("download-image-btn");
+
+    window.openImageModal = function(imageUrl) {
+        imageModal.style.display = "flex";
+        modalImg.src = imageUrl;
+        downloadBtn.href = imageUrl; 
+    }
+
+    document.getElementById('close-modal-btn').onclick = function() { 
+        imageModal.style.display = "none";
+    }
+
+    // Close dropdown, image modal, and delete confirm modal when clicking outside (unchanged)
+    window.onclick = function(event) {
+        // Close dropdowns
+        if (!event.target.matches('.options-btn') && !event.target.matches('.options-btn i')) {
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+        // Close image modal
+        if (event.target == imageModal) {
+            imageModal.style.display = "none";
+        }
+        // Close delete confirm modal (if clicking the dark background)
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+        if (event.target == deleteConfirmModal) {
+            closeDeleteConfirmModal();
+        }
+        // Close comment modal (if clicking the dark background)
+        const commentModal = document.getElementById('comment-modal');
+        if (event.target == commentModal) {
+            closeCommentModal();
+        }
+    }
+
+    // General prevention of default browser behavior (unchanged)
+    document.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+    });
+
+    document.addEventListener('dragstart', function(e){
+        if (e.target.tagName == 'IMG'){
+            e.preventDefault();
+        }
+    });
+
+</script>
+
+</html>

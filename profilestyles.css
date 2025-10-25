@@ -1,0 +1,288 @@
+/*
+* تصميم صفحة البروفايل الموحد
+* مستوحى من mainstyles.css
+*/
+
+/* ======================================= */
+/* 1. الأنماط العامة وإعادة التعيين (من mainstyles.css) */
+/* ======================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+:root {
+    /* ألوان موحدة من mainstyles.css */
+    --primary-yellow: #ffc400;
+    --secondary-yellow: #f8e12c;
+    --dark-grey: #333;
+    --medium-grey: #555;
+    --light-grey: #ccc;
+    --white: #fff;
+    --red: #f00;
+    --green: #4caf50;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --border-color: #1a1a1a;
+}
+
+body {
+    background-color: var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+    direction: rtl; 
+}
+
+/* الحاوية الرئيسية (من mainstyles.css) */
+.game-interface-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px; 
+    height: 100vh;
+    min-height: 600px;
+    margin: auto;
+    background-color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+    overflow-y: auto; 
+}
+
+/* النافذة المنبثقة (من mainstyles.css) */
+.popup-window {
+    position: relative;
+    width: 95%;
+    flex-grow: 1; 
+    margin: 10px auto;
+    background-color: var(--white);
+    border: 3px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    overflow: hidden;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* رأس النافذة (من mainstyles.css) */
+.window-header {
+    background-color: var(--medium-grey);
+    color: var(--white);
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: bold;
+}
+
+.header-icon {
+    width: 15px;
+    height: 15px;
+    background-color: var(--secondary-yellow);
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+/* زر التحكم/العودة الجديد (للتوافق مع window-header) */
+.window-control-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1em;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.window-control-btn:hover {
+    color: var(--primary-yellow);
+}
+.back-btn {
+    /* إزالة التموضع المطلق القديم */
+    position: static;
+    font-size: 1.2em;
+}
+
+/* جسم النافذة (من mainstyles.css) */
+.window-body {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    flex-grow: 1; 
+    overflow-y: auto;
+    background-color: #f7f7f7; /* لون جسم النافذة الفاتح */
+}
+
+/* ======================================= */
+/* 2. الأنماط الخاصة بالبروفايل (تحديث الأنماط القديمة) */
+/* ======================================= */
+
+.header-frame {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--dark-grey); 
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    color: var(--white);
+}
+
+.profile-icon {
+    width: 70px;
+    height: 70px;
+    background-color: var(--medium-grey);
+    border-radius: 50%;
+    border: 3px solid var(--primary-yellow);
+    margin-left: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    color: var(--light-grey);
+    flex-shrink: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-yellow);
+    line-height: 1.2;
+}
+
+.subscribers {
+    font-size: 0.9em;
+    color: var(--light-grey);
+}
+
+.subscribers span {
+    font-weight: bold;
+    color: var(--white);
+}
+
+.add-btn {
+    background-color: var(--primary-yellow);
+    border: none;
+    color: var(--dark-grey);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.3s;
+    box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.add-btn:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+.main-content-area {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.content-frame {
+    flex-grow: 1;
+    padding: 15px;
+    background-color: var(--dark-grey);
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.content-frame::-webkit-scrollbar {
+    width: 8px;
+}
+.content-frame::-webkit-scrollbar-thumb {
+    background-color: var(--primary-yellow);
+    border-radius: 10px;
+}
+.content-frame::-webkit-scrollbar-track {
+    background: var(--dark-grey);
+}
+
+.placeholder-text {
+    color: var(--light-grey);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* أزرار الأسفل */
+.footer-buttons {
+    display: flex;
+    justify-content: space-between; 
+    gap: 10px;
+    padding-top: 5px;
+}
+
+.footer-btn {
+    flex-grow: 1;
+    padding: 10px 0;
+    background-color: var(--medium-grey);
+    border: 1px solid var(--primary-yellow);
+    color: var(--white);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.footer-btn i {
+    font-size: 1.2em;
+    color: var(--primary-yellow);
+}
+
+.footer-btn span {
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.footer-btn:hover {
+    background-color: var(--dark-grey);
+    border-color: var(--secondary-yellow);
+}
+
+/* ------------------------------------------- */
+/* 3. تنسيقات شاشات العرض الأكبر (Landscape/Desktop) */
+/* ------------------------------------------- */
+
+@media (min-width: 601px) {
+    .game-interface-container {
+        /* تعديل الارتفاع في الشاشات الأكبر ليناسب النافذة المنبثقة بشكل أفضل */
+        height: 90vh; 
+        max-height: 800px;
+        padding-bottom: 0;
+    }
+
+    .popup-window {
+        margin: 20px auto;
+        max-width: 550px; /* لتقليل عرض النافذة في الشاشات الكبيرة */
+    }
+}

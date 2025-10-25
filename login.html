@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        /* (*** كود CSS السابق يبقى كما هو دون تغيير ***) */
+
+        /* إعادة تعيين الأساسيات والتخطيط العام */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+
+        /* الألوان الرئيسية */
+        :root {
+            --color-bg-dark: #2c2929;      
+            --color-element-dark: #3a3a3a;  
+            --color-primary-yellow: #ffc90e; /* الأصفر الساطع */
+            --color-google: #dd4b39;       
+            --color-facebook: #3b5998;     
+            --color-text-light: #f0f0f0;   
+            --color-logout-red: #880000;
+            --color-text-dark: #222;
+        }
+
+        /* تنسيقات الجسم والحاوية */
+        body {
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl; /* دعم اللغة العربية */
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: var(--color-element-dark);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* العنوان والرسائل */
+        h1 {
+            margin-bottom: 20px;
+            color: var(--color-primary-yellow);
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--color-primary-yellow);
+            padding-bottom: 10px;
+        }
+
+        #auth-status {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--color-bg-dark);
+            border-radius: 8px;
+            color: var(--color-text-light);
+            min-height: 20px; /* لضمان عدم اهتزاز التخطيط */
+        }
+
+        /* أزرار تسجيل الدخول */
+        .login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .login-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .login-btn i {
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        #google-login {
+            background-color: var(--color-google);
+            color: var(--color-text-light);
+        }
+
+        #facebook-login {
+            background-color: var(--color-facebook);
+            color: var(--color-text-light);
+        }
+        
+        #guest-login {
+            background-color: var(--color-primary-yellow);
+            color: var(--color-text-dark);
+        }
+
+        /* زر تسجيل الخروج (للوضع المُسجّل دخوله) */
+        #logout-btn {
+            display: none; /* مخفي في البداية */
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--color-logout-red);
+            color: var(--color-text-light);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #logout-btn:hover {
+            background-color: #a00000;
+        }
+
+        /* -------------------------------------- */
+        /* NEW CSS for Confirmation Modal */
+        /* -------------------------------------- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            padding-top: 50px;
+            justify-content: center; /* توسيط أفقي وعمودي */
+            align-items: center; /* توسيط أفقي وعمودي */
+        }
+
+        .modal-content {
+            background-color: var(--color-element-dark);
+            margin: auto; /* لإلغاء المارجن العلوي القديم */
+            padding: 30px;
+            border: 1px solid var(--color-primary-yellow);
+            width: 80%;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: var(--color-primary-yellow);
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #confirm-enter-btn {
+            background-color: #4CAF50; /* Green */
+            color: var(--color-text-light);
+        }
+        #confirm-enter-btn:hover {
+            background-color: #45A049;
+        }
+
+        #confirm-logout-btn {
+            background-color: var(--color-logout-red);
+            color: var(--color-text-light);
+        }
+        #confirm-logout-btn:hover {
+            background-color: #a00000;
+        }
+        
+        /* شاشة التحميل */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--color-primary-yellow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>تسجيل الدخول</h1>
+        <div id="auth-status">يرجى تسجيل الدخول.</div>
+        
+        <div class="login-buttons" id="login-form">
+            <button id="google-login" class="login-btn">
+                تسجيل الدخول باستخدام جوجل
+                <i class="fab fa-google"></i>
+            </button>
+            
+            <button id="facebook-login" class="login-btn">
+                تسجيل الدخول باستخدام فيسبوك
+                <i class="fab fa-facebook-f"></i>
+            </button>
+            
+            <button id="guest-login" class="login-btn">
+                دخول كـ زائر
+                <i class="fas fa-user-secret"></i>
+            </button>
+        </div>
+        
+        <button id="logout-btn" style="display: none;">
+            تسجيل الخروج من الجلسة
+        </button>
+        
+    </div>
+
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h2>ترحيب!</h2>
+            <p id="welcome-message">مرحباً بعودتك، [اسم المستخدم]!</p>
+            <div class="modal-buttons">
+                <button id="confirm-enter-btn" class="modal-btn">
+                    الدخول إلى اللعبة
+                </button>
+                <button id="confirm-logout-btn" class="modal-btn">
+                    تسجيل الخروج
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة التحميل -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">جاري تسجيل الدخول...</p>
+    </div>
+    
+    <script>
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyChvtHVmDn-jGkPCUgeyTOWF1GwwC5Se7g",
+            authDomain: "devgame-69208.firebaseapp.com",
+            projectId: "devgame-69208",
+            storageBucket: "devgame-69208.firebasestorage.app",
+            messagingSenderId: "359568777421",
+            appId: "1:359568777421:web:0c30c804aa0ffe95608984",
+            measurementId: "G-D6YELCJ51C"
+        };
+
+        // تهيئة Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        // المتغيرات
+        const auth = firebase.auth();
+        const authStatus = document.getElementById('auth-status');
+        const loginForm = document.getElementById('login-form');
+        const logoutBtn = document.getElementById('logout-btn');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const confirmEnterBtn = document.getElementById('confirm-enter-btn');
+        const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        
+        // مفاتيح localStorage
+        const USER_ID_KEY = 'game_user_id';
+        const USER_NAME_KEY = 'game_user_name';
+        const GOOGLE_PHOTO_URL_KEY = 'game_google_photo_url';
+        
+        // **********************************************
+        // 1. وظائف واجهة المستخدم
+        // **********************************************
+        
+        function updateUI(user) {
+            if (user) {
+                loginForm.style.display = 'none';
+                logoutBtn.style.display = 'none';
+            } else {
+                loginForm.style.display = 'flex';
+                logoutBtn.style.display = 'none';
+                authStatus.innerText = 'يرجى تسجيل الدخول.';
+            }
+        }
+
+        function showLoading(message = 'جاري تسجيل الدخول...') {
+            loadingText.textContent = message;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+        
+        // **********************************************
+        // 2. معالجة عمليات تسجيل الدخول - الحل الجديد
+        // **********************************************
+        
+        document.getElementById('google-login').onclick = async () => {
+            showLoading('جاري فتح نافذة تسجيل الدخول...');
+            
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            try {
+                // استخدم signInWithPopup أولاً، وإذا فشل استخدم signInWithRedirect
+                await auth.signInWithPopup(provider);
+                // إذا نجح signInWithPopup، سيتم التعامل معه في onAuthStateChanged
+            } catch (popupError) {
+                console.log('فشل النافذة المنبثقة، جاري استخدام التوجيه:', popupError);
+                
+                // إذا فشلت النافذة المنبثقة، استخدم التوجيه
+                if (popupError.code === 'auth/popup-blocked' || 
+                    popupError.code === 'auth/popup-closed-by-user' ||
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    
+                    showLoading('جاري توجيهك إلى صفحة تسجيل الدخول...');
+                    
+                    try {
+                        // حفظ حالة التوجيه في localStorage
+                        localStorage.setItem('auth_redirect', 'in_progress');
+                        
+                        await auth.signInWithRedirect(provider);
+                    } catch (redirectError) {
+                        hideLoading();
+                        authStatus.innerText = `فشل تسجيل الدخول: ${redirectError.message}`;
+                    }
+                } else {
+                    hideLoading();
+                    authStatus.innerText = `فشل تسجيل الدخول: ${popupError.message}`;
+                }
+            }
+        };
+
+        // دالة للتحقق من حالة التوجيه عند تحميل الصفحة
+        async function checkRedirectResult() {
+            try {
+                const result = await auth.getRedirectResult();
+                
+                if (result.user) {
+                    // تم تسجيل الدخول بنجاح عبر التوجيه
+                    console.log('تم تسجيل الدخول بنجاح عبر التوجيه:', result.user.displayName);
+                    localStorage.removeItem('auth_redirect');
+                    
+                    // تخزين بيانات المستخدم
+                    storeUserData(result.user);
+                    
+                    // عرض شاشة الترحيب
+                    showConfirmationModal(result.user.displayName || result.user.email);
+                } else {
+                    // لا يوجد نتيجة توجيه، تحقق إذا كان هناك توجيه قيد التقدم
+                    const redirectInProgress = localStorage.getItem('auth_redirect');
+                    if (redirectInProgress === 'in_progress') {
+                        showLoading('جاري استكمال عملية تسجيل الدخول...');
+                        // انتظر قليلاً ثم تحقق مرة أخرى
+                        setTimeout(checkRedirectResult, 1000);
+                    }
+                }
+            } catch (error) {
+                console.error('خطأ في نتيجة التوجيه:', error);
+                localStorage.removeItem('auth_redirect');
+                hideLoading();
+                
+                if (error.code !== 'auth/no-auth-event') {
+                    authStatus.innerText = `فشل في معالجة تسجيل الدخول: ${error.message}`;
+                }
+            }
+        }
+
+        // تخزين بيانات المستخدم
+        function storeUserData(user) {
+            const userName = user.displayName || user.email || 'مستخدم غير معروف';
+            const userEmail = user.email || '';
+            
+            localStorage.removeItem('game_profile_pic_url');
+            localStorage.removeItem(GOOGLE_PHOTO_URL_KEY);
+            
+            localStorage.setItem(USER_ID_KEY, user.uid);
+            localStorage.setItem(USER_NAME_KEY, userName);
+            localStorage.setItem('game_user_email', userEmail);
+            
+            if (user.photoURL) {
+                localStorage.setItem(GOOGLE_PHOTO_URL_KEY, user.photoURL);
+            }
+        }
+        
+        document.getElementById('facebook-login').onclick = () => {
+            authStatus.innerText = 'ميزة تسجيل الدخول باستخدام فيسبوك غير مهيأة.';
+        };
+        
+        document.getElementById('guest-login').onclick = () => {
+            const guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+            const guestUser = {
+                uid: guestId,
+                displayName: 'Guest',
+                email: 'guest@example.com',
+                photoURL: null 
+            };
+            
+            localStorage.setItem(USER_ID_KEY, guestUser.uid);
+            localStorage.setItem(USER_NAME_KEY, guestUser.displayName);
+            localStorage.setItem('game_user_email', guestUser.email);
+            localStorage.removeItem(GOOGLE_PHOTO_URL_KEY);
+            
+            showConfirmationModal(guestUser.displayName);
+        };
+
+        // **********************************************
+        // 3. وظيفة تسجيل الخروج
+        // **********************************************
+        
+        function handleLogout() {
+            auth.signOut().then(() => {
+                localStorage.removeItem(USER_ID_KEY);
+                localStorage.removeItem(USER_NAME_KEY);
+                localStorage.removeItem('game_user_email');
+                localStorage.removeItem(GOOGLE_PHOTO_URL_KEY);
+                localStorage.removeItem('nextPage');
+                localStorage.removeItem('auth_redirect');
+                
+                updateUI(null);
+                authStatus.innerText = 'تم تسجيل الخروج بنجاح.';
+                confirmationModal.style.display = 'none';
+            }).catch((error) => {
+                authStatus.innerText = `فشل تسجيل الخروج: ${error.message}`;
+            });
+        }
+        
+        logoutBtn.onclick = handleLogout;
+        confirmLogoutBtn.onclick = handleLogout;
+
+        // **********************************************
+        // 4. وظائف المودال
+        // **********************************************
+
+        function showConfirmationModal(userName) {
+            welcomeMessage.textContent = `مرحباً بعودتك، ${userName}!`;
+            confirmationModal.style.display = 'flex';
+            loginForm.style.display = 'none';
+            authStatus.innerText = `تم تسجيل الدخول كـ ${userName}. يرجى تأكيد الدخول.`;
+            hideLoading();
+        }
+
+        confirmEnterBtn.onclick = () => {
+            localStorage.setItem('nextPage', 'main');
+            confirmationModal.style.display = 'none';
+            authStatus.innerText = 'جاري الدخول...';
+            showLoading('جاري تحميل اللعبة...');
+            setTimeout(() => {
+                window.location.href = 'loading.html';
+            }, 1000);
+        };
+
+        // **********************************************
+        // 5. حالة توثيق المستخدم
+        // **********************************************
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                storeUserData(user);
+                showConfirmationModal(user.displayName || user.email);
+            } else {
+                updateUI(null);
+                confirmationModal.style.display = 'none';
+                hideLoading();
+            }
+        });
+
+        // **********************************************
+        // 6. التهيئة عند تحميل الصفحة
+        // **********************************************
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // التحقق من نتيجة التوجيه عند تحميل الصفحة
+            checkRedirectResult();
+            
+            // التحقق إذا كان المستخدم مسجل دخول بالفعل
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                storeUserData(currentUser);
+                showConfirmationModal(currentUser.displayName || currentUser.email);
+            }
+        });
+
+        // **********************************************
+        // (باقي الأكواد لمنع النسخ)
+        // **********************************************
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+        });
+
+        document.addEventListener('dragstart', function(e){
+            if (e.target.tagName == 'IMG'){
+                e.preventDefault();
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+</body>
+</html>

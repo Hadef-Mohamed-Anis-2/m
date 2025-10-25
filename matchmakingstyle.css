@@ -1,0 +1,369 @@
+/* matchmakingstyle.css */
+
+:root {
+    --primary-yellow: #fddb00; 
+    --text-color: #ffffff;
+    --dark-bg: #1c1c1c; 
+    --overlay-color: rgba(0, 0, 0, 0.5); 
+    --bg-dark: #0f0f0f;
+    --player-bg: #282828; /* لون خلفية قائمة اللاعبين الداكنة */
+    --player-item-bg: rgba(0, 0, 0, 0.5); /* خلفية عناصر اللاعبين */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    direction: rtl;
+}
+
+/* -------------------- الحاوية الرئيسية -------------------- */
+.matchmaking-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* لترتيب الأقسام عمودياً */
+}
+
+
+/* -------------------- الراية العلوية (Header Banner) -------------------- */
+.header-banner {
+    width: 100%;
+    min-height: 250px; 
+    position: relative;
+    overflow: hidden;
+    background: #1c1c1c no-repeat center center/cover;
+    padding: 20px;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+}
+
+/* -------------------- الخلفيات الديناميكية (من stageselectstyle.css) -------------------- */
+.card-bg-1 {
+    background: url(assets/2.jpg) no-repeat center center/cover;
+}
+.card-bg-2 {
+    background: url(assets/4.jpg) no-repeat center center/cover;
+}
+.card-bg-3 {
+    background: url(assets/3.jpg) no-repeat center center/cover;
+}
+
+
+/* -------------------- الأزرار والمعلومات -------------------- */
+
+.back-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2em;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.main-info {
+    position: relative;
+    z-index: 5;
+    max-width: 500px;
+    padding-top: 20px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.title-main {
+    color: var(--primary-yellow);
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.participants {
+    font-size: 1em;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.participants i {
+    color: var(--primary-yellow);
+    margin-left: 5px;
+}
+
+.description {
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #eee;
+    margin-bottom: 15px;
+}
+
+.reward-box {
+    background-color: rgba(255, 215, 0, 0.1); /* ظل خفيف للأصفر */
+    border: 1px solid var(--primary-yellow);
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--primary-yellow);
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 15px;
+    text-shadow: none;
+}
+
+.reward-box i {
+    margin-left: 10px;
+}
+
+.channel-info {
+    font-size: 0.8em;
+    color: #999;
+}
+
+.channel-info i {
+    color: var(--primary-yellow);
+    margin-left: 5px;
+}
+
+.subscribers {
+    color: #fff;
+    font-weight: bold;
+}
+
+
+/* -------------------- منطقة محتوى اللاعبين الجديدة -------------------- */
+.main-matchmaking-content {
+    flex-grow: 1; 
+    background-color: var(--player-bg); /* اللون الداكن لملء الفراغ الرمادي */
+    padding: 20px; 
+    overflow-y: auto;
+    padding-bottom: 80px; 
+}
+
+.player-list-container {
+    max-width: 800px;
+    margin: 0 auto; 
+}
+
+.list-title {
+    font-size: 1.2em;
+    color: var(--primary-yellow);
+    margin-bottom: 15px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.player-list {
+    display: grid;
+    /* 5 أعمدة للشاشات الكبيرة (أو 4 كحد أدنى حسب الصورة) */
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+    gap: 15px;
+}
+
+/* -------------------- أنماط عنصر اللاعب الجديد (Grid Item) -------------------- */
+.player-item {
+    background-color: var(--player-item-bg);
+    /* إزالة الحدود ليتناسب مع التصميم في الصورة */
+    border: none; 
+    border-radius: 8px;
+    padding: 15px 5px; /* زيادة التباعد الرأسي */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 150px; /* لضمان شكل موحد ومستطيل مائل للمربع */
+    justify-content: space-between;
+}
+
+/* حاوية الآيقونة لتطبيق الحدود الصفراء */
+.player-icon-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* الحدود حول الآيقونة */
+    border: 3px solid var(--primary-yellow); 
+}
+
+.player-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: none; /* إزالة الحدود الداخلية */
+    object-fit: cover;
+}
+
+/* تمييز اللاعب الحالي */
+.player-item.current-player .player-icon-wrapper {
+    border-color: #fff; /* إطار أبيض / فاتح كما في الصورة */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.player-name {
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 90%;
+    margin-top: 5px;
+}
+
+.player-status {
+    font-size: 0.8em;
+    color: #999;
+}
+
+
+/* -------------------- قسم حالة البحث عن اللاعبين -------------------- */
+.matchmaking-status {
+    background-color: var(--primary-yellow);
+    color: var(--bg-dark);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 20px;
+    position: sticky; 
+    bottom: 0;
+    width: 100%;
+    z-index: 20;
+    margin-top: auto;
+}
+
+.status-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timer {
+    font-size: 2em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.status-text {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.progress-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress-box i {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.progress-text {
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.player-count {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--bg-dark);
+}
+
+.cancel-btn {
+    background-color: var(--bg-dark);
+    color: var(--primary-yellow);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+}
+
+.cancel-btn:hover {
+    opacity: 0.8;
+}
+
+.cancel-btn i {
+    font-size: 1.2em;
+}
+
+/* -------------------- تنسيق الأجهزة الصغيرة -------------------- */
+@media (max-width: 600px) {
+    .matchmaking-status {
+        flex-direction: row; 
+        justify-content: space-between;
+        padding: 10px 10px;
+    }
+
+    .main-info {
+        padding: 10px;
+    }
+    
+    .cancel-btn {
+        padding: 8px 10px;
+        font-size: 0.8em;
+    }
+
+    .timer, .player-count {
+        font-size: 1.5em;
+    }
+    
+    .player-list {
+        /* عمودان فقط على الهواتف */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px;
+    }
+
+    .player-item {
+        height: 140px; 
+    }
+    
+    .player-icon-wrapper {
+        width: 70px;
+        height: 70px;
+    }
+
+    .player-avatar {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .main-matchmaking-content {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 70px; 
+    }
+}

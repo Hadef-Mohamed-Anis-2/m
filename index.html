@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="er" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Splash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: #000000;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            height: 100dvh; /* للهواتف الحديثة */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+            
+        }
+        
+        .splash-container {
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .company-name {
+            font-size: clamp(3rem, 12vw, 5rem); /* حجم متجاوب */
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            line-height: 1.2;
+        }
+        
+        .tagline {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            opacity: 0.8;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-bar {
+            width: min(80%, 300px); /* يتناسب مع الشاشة */
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 30px auto;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #fff, #888);
+            animation: loading 3s ease-in-out forwards;
+        }
+        
+        /* منع التدوير الأفقي */
+        @media (max-height: 500px) {
+            .company-name {
+                font-size: clamp(2rem, 8vw, 3rem);
+            }
+            .tagline {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <div class="company-name">AnisH</div>
+        <div class="tagline">Monster Arena</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <script>
+
+        setTimeout(() => {
+
+            localStorage.setItem('nextPage' , 'login');
+
+            document.body.style.transition = 'opacity 0.8s ease-in-out';
+            document.body.style.opacity = '0';
+
+            setTimeout(() => {
+                window.location.href = 'loading.html'; 
+            },800)
+            
+        }, 4000); 
+        
+     
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+        
+    document.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+    });
+
+    document.addEventListener('dragstart', function(e){
+        if (e.target.tagName == 'IMG'){
+            e.preventDefault();
+        }
+    });
+
+    </script>
+</body>
+</html>

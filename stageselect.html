@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage Select</title>
+    <link rel="stylesheet" href="mainstyles.css"> 
+    <link rel="stylesheet" href="stageselectstyle.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="game-interface-container">
+
+        <div class="header-banner" id="headerBanner">
+            <div class="overlay"></div>
+
+            <a href="main.html" style="text-decoration: none;">
+                <button class="back-btn window-control-btn" aria-label="Return">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </a>
+        
+            <div class="side-buttons">
+                <div class="circle-btn red"></div>
+                <div class="circle-btn green"></div>
+                <div class="circle-btn blue"></div>
+            </div>
+
+            <div class="main-info">
+                <h1 class="title-large">DUEL CHANNEL <span class="highlight">DUELROOM</span></h1>
+                <p class="channel-motto">
+                    !Choose the challenge mode that suits you, and get ready to gambling
+                </p>
+            </div>
+        </div>
+
+        <div class="card-section-container">
+            
+            <h2 class="section-title">
+                <i class="fas fa-fire-alt fire-icon"></i>
+                RECOMMENDED
+            </h2>
+            
+            <div class="card-container">
+                
+                <div class="card" data-bg-class="card-bg-1" data-players="30" data-title="Guess Royale" data-mode="multi">
+                    <div class="card-overlay">
+                        <p class="card-title">Guess Royale</p>
+                        <div class="details">
+                            <span class="score-display">Battle Royale</span>
+                            <span class="meta"><i class="fas fa-users"></i> 30 Player</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-bg-class="card-bg-2" data-players="5" data-title="Gift Contest" data-mode="event">
+                    <div class="card-overlay">
+                        <p class="card-title">Gift Contest</p>
+                        <div class="details">
+                            <span class="no-scores">Event</span>
+                            <span class="meta"><i class="fas fa-flag"></i> Limited Time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-bg-class="card-bg-3" data-players="1" data-title="Solo Entertainment" data-mode="solo">
+                    <div class="card-overlay">
+                        <p class="card-title">Solo Entertainment</p>
+                        <div class="details">
+                            <span class="no-scores" style="background-color: var(--primary-yellow);">Solo</span>
+                            <span class="meta"><i class="fas fa-microphone-alt"></i> Streamers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window-footer floating-mode-btn" id="floatingMatchBtn" onclick="startMatchmaking()">
+           Search for player
+        </div>
+
+    </div> <script>
+        const cards = document.querySelectorAll('.card');
+        const floatingBtn = document.getElementById('floatingMatchBtn');
+        const headerBanner = document.getElementById('headerBanner');
+        let selectedCard = null;
+        let selectedBgClass = '';
+
+        // افتراض: إضافة فئة الخلفية الافتراضية عند التحميل
+        headerBanner.classList.add('card-bg-default');
+
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                selectCard(card);
+            });
+        });
+
+        function selectCard(card) {
+            // 1. إزالة التحديد والخلفية السابقة
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+                headerBanner.classList.remove(selectedBgClass);
+            }
+
+            // 2. تطبيق التحديد والخلفية الجديدة
+            selectedCard = card;
+            card.classList.add('selected');
+            selectedBgClass = card.dataset.bgClass;
+            headerBanner.classList.remove('card-bg-default'); // إزالة الخلفية الافتراضية
+            headerBanner.classList.add(selectedBgClass);
+
+            // 3. تحديث نص زر البدء
+            floatingBtn.textContent = 'Star Searching For Players (' + card.dataset.title + ')'; 
+            floatingBtn.style.opacity = '1';
+            floatingBtn.style.pointerEvents = 'auto';
+
+            // 4. حفظ البيانات في التخزين المحلي (للاستخدام في matchmaking.html)
+            localStorage.setItem('selectedCardBgClass', card.dataset.bgClass);
+            localStorage.setItem('maxPlayers', card.dataset.players);
+            localStorage.setItem('selectedCardTitle', card.dataset.title);
+            localStorage.setItem('selectedMode', card.dataset.mode || 'multi'); 
+        }
+
+        function startMatchmaking() {
+            if (selectedCard) {
+                window.location.href = 'matchmaking.html'; // التوجيه إلى صفحة الانتظار
+            } else {
+                alert('الرجاء اختيار وضع اللعب أولاً!');
+            }
+        }
+    </script>
+</body>
+</html>

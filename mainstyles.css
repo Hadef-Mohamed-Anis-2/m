@@ -1,0 +1,600 @@
+/* الأنماط العامة وإعادة التعيين */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+:root {
+    /* ألوان تقريبية من الصورة */
+    --primary-yellow: #ffc400;
+    --secondary-yellow: #f8e12c;
+    --dark-grey: #333;
+    --medium-grey: #555;
+    --light-grey: #ccc;
+    --white: #fff;
+    --red: #f00;
+    --green: #4caf50;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --border-color: #1a1a1a;
+}
+
+body {
+    background-color: var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+}
+
+/* ------------------------------------------- */
+/* الأنماط الافتراضية: التخطيط العمودي للهواتف (Portrait) */
+/* ------------------------------------------- */
+
+.game-interface-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* للحد من العرض في الهاتف */
+    height: 100vh;
+    min-height: 600px; /* لضمان حد أدنى للارتفاع */
+    margin: auto;
+    background-color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 70px; /* مسافة لشريط الأزرار الثابت */
+    overflow-y: auto; /* السماح بالتمرير في وضع البورتريه */
+}
+
+.popup-window {
+    position: relative;
+    width: 95%;
+    margin: 10px auto;
+    background-color: var(--white);
+    border: 3px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    overflow: hidden;
+    font-size: 14px;
+    flex-shrink: 0; /* لا ينكمش */
+}
+
+/* رأس النافذة */
+.window-header {
+    background-color: var(--medium-grey);
+    color: var(--white);
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: bold;
+}
+
+.header-icon {
+    width: 15px;
+    height: 15px;
+    background-color: var(--secondary-yellow);
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+.window-controls {
+    margin-right: auto;
+}
+
+/* جسم النافذة: عمودي بشكل افتراضي */
+.window-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* اللوحة اليسرى واليمنى: تأخذ العرض الكامل */
+.left-panel {
+    width: 100%;
+    padding: 10px;
+    border-right: none;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.right-panel {
+    width: 100%;
+    padding: 10px;
+    gap: 8px;
+}
+
+/* Live Section */
+.live-section {
+    position: relative;
+    background-image: url(assets/1.jpeg);
+    height: 200px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+}
+
+.live-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--red);
+    color: var(--white);
+    padding: 2px 6px;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+.contestant-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-align: right;
+    color: var(--primary-yellow);
+}
+
+.contestant-info .number {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.contestant-info .label {
+    display: block;
+    font-size: 12px;
+    color: var(--white);
+}
+
+.character-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-image: url(assets/1.jpeg);
+    background-size: cover;
+    background-position: center;
+    
+}
+
+/* Video Player */
+.video-player {
+    background: linear-gradient(to right, #e74c3c, #f1c40f);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.video-thumbnail {
+    background-color: var(--dark-grey);
+    color: var(--white);
+    padding: 15px 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.official-tag {
+    background-color: var(--primary-yellow);
+    color: var(--dark-grey);
+    padding: 2px 5px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+.video-title {
+    font-size: 12px;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.video-title span {
+    color: var(--primary-yellow);
+    margin-left: 5px;
+}
+
+.play-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: var(--white);
+    opacity: 0.8;
+}
+
+.video-controls {
+    height: 5px;
+    background-color: var(--dark-grey);
+}
+
+.duel-channel-info {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.channel-name {
+    color: var(--primary-yellow);
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.subscribers {
+    color: var(--medium-grey);
+    margin-right: 10px;
+}
+
+.subscribed-btn {
+    background-color: var(--primary-yellow);
+    color: var(--dark-grey);
+    border: none;
+    padding: 3px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+/* Right Panel Elements (as is) */
+.reminder-text {
+    font-style: italic;
+    color: var(--medium-grey);
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.ranking-section {
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    margin-bottom: 10px;
+}
+
+.rank-item {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px dashed var(--light-grey);
+}
+
+.rank-number {
+    font-size: 18px;
+    font-weight: bold;
+    width: 25px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.rank-1 .rank-number { color: gold; }
+.rank-2 .rank-number { color: silver; }
+.rank-3 .rank-number { color: #cd7f32; }
+.rank-4 .rank-number { color: #cd32ab; }
+
+.rank-image-placeholder {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    background-color: var(--light-grey);
+    border: 2px solid var(--dark-grey);
+    border-radius: 50%;
+}
+
+.rank-name {
+    font-weight: bold;
+    color: var(--dark-grey);
+}
+
+.announcements-section, .daily-activity-section, .reward-info-section {
+    padding: 8px 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background-color: #f7f7f7;
+    position: relative;
+}
+
+.announcements-section h4 {
+    color: var(--primary-yellow);
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+.announcements-section p {
+    font-size: 12px;
+    color: var(--medium-grey);
+}
+
+.daily-activity-section p, .reward-info-section p {
+    font-weight: bold;
+    color: var(--dark-grey);
+    
+    
+}
+
+.daily-activity-section::before, .reward-info-section::before {
+    content: '?';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: var(--primary-yellow);
+    border-radius: 50%;
+    color: var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Reward Info Section */
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    background-color: var(--dark-grey);
+    border: 2px solid var(--border-color);
+    margin-top: 5px;
+    padding: 5px;
+    position: relative;
+}
+
+.weapon-icon-placeholder {
+    width: 60px;
+    height: 30px;
+    background-color: var(--medium-grey);
+    margin-right: 10px;
+}
+
+.level-info {
+    flex-grow: 1;
+    background-color: var(--medium-grey);
+    color: var(--white);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    
+    overflow: hidden;
+}
+
+.level-info::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    height: 90%;
+    width: 1%; 
+    background-color: var(--green);
+    z-index: 1;
+    border-radius: 3px;
+}
+
+.level-info p {
+    color: #d5e921;
+    top: 12px;
+    left: 150px;
+    z-index: 2;
+    font-size: 15px;
+    font-weight: normal;
+    position: absolute;
+}
+
+.level-info span {
+    position: absolute;
+    font-weight: bold;
+    font-size: 12px;
+    margin-left: 3px;
+}
+
+.max-tag {
+    position: absolute;
+    top: 50%;
+    right: -10px;
+    transform: translateY(-50%) rotate(45deg);
+    background-color: var(--red);
+    color: var(--white);
+    padding: 1px 15px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 3;
+}
+
+/* تذييل النافذة */
+.window-footer {
+    background-color: #f7f7f7;
+    padding: 8px 15px;
+    border-top: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--dark-grey);
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------- */
+/* أزرار الإجراءات السفلية (للهاتف) */
+/* ------------------------------------------- */
+
+.action-buttons-container {
+    position: fixed; /* تثبيت الشريط في أسفل الشاشة */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--dark-grey);
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    z-index: 10;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.action-button {
+    width: 100%;
+    flex: 1; /* جعل الأزرار تتوزع بالتساوي */
+    margin: 0 1px;
+    padding: 10px 3px;
+    border: 2px solid var(--dark-grey);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0 var(--dark-grey);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--dark-grey);
+    position: relative;
+    white-space: nowrap; /* منع انقسام النص */
+    transition: all 0.1s ease-out; /* تحسين الاستجابة */
+}
+
+.action-button:active {
+    box-shadow: 1px 1px 0 var(--dark-grey); /* تأثير الضغط */
+    transform: translate(1px, 1px);
+}
+
+.action-button::before {
+    font-size: 16px;
+    line-height: 1;
+    margin-bottom: 1px;
+    color: var(--dark-grey);
+}
+
+.join-group { background-color: var(--secondary-yellow); }
+.create-group { background-color: var(--secondary-yellow); }
+.go-streaming { background-color: var(--secondary-yellow); }
+.join-event { background-color: var(--primary-yellow); }
+
+
+
+.join-event {
+    box-shadow: 2px 2px 0 #b38e00;
+}
+
+.join-group {
+    box-shadow: 2px 2px 0 #b38e00;
+}
+
+.go-streaming {
+    box-shadow: 2px 2px 0 #b38e00;
+}
+
+.create-group {
+    box-shadow: 2px 2px 0 #b38e00;
+}
+/* ------------------------------------------- */
+/* Media Query: الشاشات الأكبر (Tablet/Desktop) */
+/* ------------------------------------------- */
+
+@media (min-width: 768px) {
+    /* العودة للتخطيط الأصلي عالي الجودة للتابلت والكمبيوتر */
+
+    .game-interface-container {
+        width: 100%;
+        height: 700px; /* ارتفاع ثابت */
+        max-width: 1000px; /* عرض ثابت */
+        max-height: 90vh;
+        padding: 20px;
+        min-height: 500px;
+        padding-bottom: 20px; /* لا نحتاج مسافة للأزرار الثابتة هنا */
+        overflow-y: hidden;
+    }
+
+    .popup-window {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 650px;
+        height: 600px; /* تحديد ارتفاع النافذة */
+        max-width: none;
+        margin: 0;
+        border: 4px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: 10px 10px 0 var(--shadow-color);
+        font-size: 14px;
+        flex-direction: column;
+    }
+
+    /* جسم النافذة: العودة إلى تخطيط العمودين */
+    .window-body {
+        flex-direction: row;
+        height: 100%;
+    }
+
+    .left-panel {
+        width: 60%;
+        padding: 10px;
+        border-right: 2px solid var(--border-color);
+        border-bottom: none;
+    }
+
+    .right-panel {
+        width: 40%;
+        padding: 10px;
+        overflow-y: auto; /* السماح بالتمرير داخل اللوحة اليمنى */
+        gap: 10px;
+    }
+    
+    .live-section {
+        height: 220px;
+        margin-bottom: 10px;
+    }
+
+    .contestant-info .number {
+        font-size: 40px;
+    }
+
+    .window-footer {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    .action-buttons-container {
+        display: flex; /* إظهار الأزرار */
+        position: absolute; /* العودة للموضع المطلق */
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 650px;
+        padding: 0;
+        gap: 10px;
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    .action-button {
+        padding: 15px 5px;
+        border: 3px solid var(--dark-grey);
+        border-radius: 8px;
+        box-shadow: 4px 4px 0 var(--dark-grey);
+        font-size: 12px;
+        flex: 1;
+    }
+
+    .action-button::before {
+        font-size: 20px;
+        margin-bottom: 3px;
+    }
+    
+    .join-event {
+        box-shadow: 4px 4px 0 #b38e00; 
+    }
+}
+
+
+
+.button-link {
+    flex: 1;
+    display: block;
+    text-decoration: none;
+    margin: 0 1px;
+}

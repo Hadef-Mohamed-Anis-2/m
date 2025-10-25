@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchmaking</title>
+    <link rel="stylesheet" href="matchmakingstyle.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    
+    <div class="matchmaking-container">
+        
+        <div class="header-banner" id="matchmakingHeader">
+            <div class="overlay"></div>
+            
+            <a href="stageselect.html" style="text-decoration: none;">
+                <button class="back-btn"><i class="fas fa-arrow-right"></i></button>
+            </a>
+    
+            <div class="main-info">
+                <p class="title-main" id="gameTitle">Matchmake Guess Royale</p>
+                <p class="participants"><i class="fas fa-users"></i> Participants <span id="maxParticipants">30</span></p>
+                <p class="description">
+                    Guess fight every time, until you laugh your last.
+                    Pick the correct team to avoid elimination.
+                    But be careful, there's little room for miscalle!
+                </p>
+                <div class="reward-box">
+                    <i class="fas fa-trophy"></i>
+                    <span>Gain extra Grand Duel Fireworks based on ranking</span>
+                </div>
+                <div class="channel-info">
+                    <i class="fas fa-broadcast-tower"></i>
+                    LASTSTANDING CHANNEL 
+                    <span class="subscribers">22K SUBSCRIBERS</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-matchmaking-content">
+            <div class="player-list-container">
+                <h3 class="list-title">Organized Players (<span id="currentPlayerCountTitle">1</span>/<span id="totalPlayerCountTitle">30</span>)</h3>
+                <div class="player-list" id="playerList">
+                    </div>
+            </div>
+        </div>
+        <div class="matchmaking-status">
+            <div class="status-box">
+                <span class="timer">5S</span>
+                <p class="status-text">Matchmaking...</p>
+            </div>
+            <div class="progress-box">
+                <i class="fas fa-user-friends"></i>
+                <span class="progress-text">Match Progress</span>
+                <span class="player-count"><span id="currentPlayerCount">1</span> / <span id="totalPlayerCount">30</span></span>
+            </div>
+            <button class="cancel-btn" onclick="cancelMatchmaking()">
+                <i class="fas fa-times"></i>
+                <span>Cancel Matchmaking</span>
+            </button>
+        </div>
+
+    </div>
+    
+</body>
+
+<script>
+    const header = document.getElementById('matchmakingHeader');
+    const maxParticipantsSpan = document.getElementById('maxParticipants');
+    const totalPlayerCountSpan = document.getElementById('totalPlayerCount');
+    const totalPlayerCountTitleSpan = document.getElementById('totalPlayerCountTitle');
+    const currentPlayerCountSpan = document.getElementById('currentPlayerCount');
+    const currentPlayerCountTitleSpan = document.getElementById('currentPlayerCountTitle');
+    const timerSpan = document.querySelector('.timer');
+    const statusText = document.querySelector('.status-text');
+    const playerList = document.getElementById('playerList');
+    
+    // ****************************************************
+    // مفاتيح localStorage
+    // ****************************************************
+    const USER_NAME_KEY = 'game_user_name';
+    const PROFILE_PIC_URL_KEY = 'game_profile_pic_url';
+    const SELECTED_MODE_KEY = 'selectedMode';
+
+    // 1. جلب بيانات اللاعب الحالي من localStorage
+    const savedUsername = localStorage.getItem(USER_NAME_KEY) || "Gest";
+    const savedPicUrl = localStorage.getItem(PROFILE_PIC_URL_KEY) || "https://via.placeholder.com/100/fddb00/000000?text=G";
+
+    const CURRENT_USER = {
+        username: savedUsername,
+        avatarUrl: savedPicUrl,
+        status: "Ready"
+    };
+    
+    // متغيرات الحالة العامة
+    let currentPlayers = [CURRENT_USER]; // قائمة اللاعبين المنضمين حالياً
+    let allBots = []; // قائمة البوتات التي تنتظر الانضمام
+    let countdownInterval;
+    let botJoinInterval;
+    let searchInterval;
+
+
+    // دالة إنشاء عنصر اللاعب
+    function createPlayerItem(user) {
+        const isCurrentUser = user.username === CURRENT_USER.username;
+        const isBot = user.status === "Ready (Bot)";
+        
+        const item = document.createElement('div');
+        item.className = 'player-item';
+        if (isCurrentUser) {
+             item.classList.add('current-player');
+        } else if (isBot) {
+             item.classList.add('bot-player');
+        }
+        
+        item.innerHTML = `
+            <div class="player-icon-wrapper">
+                <img src="${user.avatarUrl}" alt="${user.username}" class="player-avatar">
+            </div>
+            <span class="player-name">${user.username}</span>
+            <span class="player-status">${isCurrentUser ? 'You' : (isBot ? 'Bot' : 'Ready')}</span>
+        `;
+        return item;
+    }
+    
+    // دالة توليد بيانات البوتات
+    function generateBots(count) {
+        const botNamesPool = ["Specter", "Viper", "Ghost", "Rogue", "Phantom", "Shadow", "Blitz", "Blade", "Reaper", "Jester"];
+        const bots = [];
+        for (let i = 1; i <= count; i++) {
+            const randomIndex = Math.floor(Math.random() * botNamesPool.length);
+            const namePart = botNamesPool[randomIndex] + "-" + (Math.floor(Math.random() * 900) + 100); 
+            
+            bots.push({
+                username: namePart,
+                avatarUrl: `assets/bot-${i}.jpg`, 
+                status: "Ready (Bot)"
+            });
+        }
+        return bots;
+    }
+
+    // دالة تحديث قائمة اللاعبين (تعتمد على مصفوفة currentPlayers)
+    function updatePlayerList() {
+        playerList.innerHTML = '';
+        currentPlayers.forEach(player => {
+            playerList.appendChild(createPlayerItem(player));
+        });
+        
+        // تحديث عدادات اللاعبين
+        currentPlayerCountSpan.textContent = currentPlayers.length;
+        currentPlayerCountTitleSpan.textContent = currentPlayers.length;
+    }
+
+    // دالة محاكاة انضمام البوتات التدريجي
+    function startBotJoinSimulation(maxFill) {
+        const totalBotsToJoin = maxFill - currentPlayers.length; // المفترض 7
+        allBots = generateBots(totalBotsToJoin);
+        
+        // إيقاف عداد الـ 5 ثواني
+        if (typeof countdownInterval !== 'undefined') {
+            clearInterval(countdownInterval);
+        }
+        timerSpan.textContent = '00:00';
+        statusText.textContent = `Opponents Joining... (${currentPlayers.length} / ${maxFill})`;
+
+        // بدء الانضمام التدريجي
+        botJoinInterval = setInterval(() => {
+            if (currentPlayers.length < maxFill) {
+                // إضافة البوت التالي
+                const bot = allBots.shift(); 
+                currentPlayers.push(bot);
+                
+                updatePlayerList();
+                statusText.textContent = `Opponents Joining... (${currentPlayers.length} / ${maxFill})`;
+            }
+            
+            // تحقق من اكتمال العدد
+            if (currentPlayers.length === maxFill) {
+                clearInterval(botJoinInterval);
+                statusText.textContent = 'Match Ready! Waiting for START...';
+                // حفظ ID لتنظيفه عند الإلغاء
+                localStorage.setItem('botJoinIntervalId', botJoinInterval); 
+            }
+        }, 1500); // بوت كل 1.5 ثانية
+    }
+
+
+    // محاكاة البحث عن اللاعبين للوضع المتعدد (Multi)
+    function simulateSearch(maxFill) {
+        statusText.textContent = 'Searching for Opponents...';
+        
+        // إيقاف عداد الـ 5 ثواني
+        clearInterval(countdownInterval);
+        timerSpan.textContent = '00:00';
+
+        let minutes = 0;
+        let sec = 0;
+        
+        searchInterval = setInterval(() => {
+            sec++;
+            if (sec === 60) {
+                sec = 0;
+                minutes++;
+            }
+            const displayMin = minutes < 10 ? '0' + minutes : minutes;
+            const displaySec = sec < 10 ? '0' + sec : sec;
+            timerSpan.textContent = `${displayMin}:${displaySec}`;
+            
+            if (minutes === 0 && sec === 10) {
+                 statusText.textContent = `Searching... Still ${maxFill - currentPlayers.length} Player Slots.`;
+            }
+
+        }, 1000);
+        
+        localStorage.setItem('searchIntervalId', searchInterval);
+    }
+    
+    // ****************************************************
+    // منطقة التنفيذ الرئيسية (Initialization)
+    // ****************************************************
+
+    const bgClass = localStorage.getItem('selectedCardBgClass');
+    const maxPlayers = localStorage.getItem('maxPlayers');
+    const gameTitle = localStorage.getItem('selectedCardTitle') || 'Matchmake Guess Royale';
+    const selectedMode = localStorage.getItem(SELECTED_MODE_KEY);
+
+
+    // تطبيق البيانات المحفوظة
+    if (bgClass) {
+        header.classList.add(bgClass);
+    }
+    if (maxPlayers) {
+        maxParticipantsSpan.textContent = maxPlayers;
+        totalPlayerCountSpan.textContent = maxPlayers;
+        totalPlayerCountTitleSpan.textContent = maxPlayers;
+    }
+    document.getElementById('gameTitle').textContent = gameTitle;
+    
+    // عرض اللاعب الحالي أولاً
+    updatePlayerList(); 
+
+    // بدء العد التنازلي لـ 5 ثواني
+    let currentCount = 5;
+    countdownInterval = setInterval(() => {
+        currentCount--;
+        timerSpan.textContent = `${currentCount}S`;
+
+        if (currentCount <= 0) {
+            clearInterval(countdownInterval);
+            
+            if (selectedMode === 'solo' && parseInt(maxPlayers) === 8) {
+                // إذا كان الوضع Solo، ابدأ انضمام البوتات
+                startBotJoinSimulation(parseInt(maxPlayers));
+            } else {
+                // إذا كان الوضع Multi، ابدأ البحث
+                simulateSearch(parseInt(maxPlayers));
+            }
+        }
+    }, 1000);
+    
+    
+    // دالة إلغاء البحث الشاملة
+    function cancelMatchmaking() {
+        // إيقاف جميع العدادات المحتملة
+        if (typeof countdownInterval !== 'undefined') {
+            clearInterval(countdownInterval);
+        }
+        
+        const searchIntervalId = localStorage.getItem('searchIntervalId');
+        if (searchIntervalId) {
+            clearInterval(parseInt(searchIntervalId));
+        }
+
+        const botJoinIntervalId = localStorage.getItem('botJoinIntervalId');
+        if (botJoinIntervalId) {
+            clearInterval(parseInt(botJoinIntervalId));
+        }
+
+        // توجيه المستخدم
+        window.location.href = 'stageselect.html';
+    }
+
+    // تنظيف localStorage عند تحميل الصفحة (للتأكد من عدم استئناف أي عداد في تحميل لاحق)
+    window.onload = function() {
+        localStorage.removeItem('searchIntervalId');
+        localStorage.removeItem('botJoinIntervalId');
+    };
+
+
+    document.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+    });
+
+    document.addEventListener('dragstart', function(e){
+        if (e.target.tagName == 'IMG'){
+            e.preventDefault();
+        }
+    });
+</script>
+
+</html>

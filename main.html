@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="aen" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Sceen</title>
+    <link rel="stylesheet" href="mainstyles.css">
+    </head>
+
+    
+<body>
+    <div class="game-interface-container">
+        <div class="main-content-placeholder">
+            </div>
+
+        <div class="popup-window">
+            <div class="window-header">
+                <span class="header-icon">
+                    </span>
+                <span class="header-title" style="padding-right: 10px;">Green Granville Duel Center</span>
+                <div class="window-controls">
+                    </div>
+            </div>
+
+            <div class="window-body">
+                <div class="left-panel">
+                    <div class="live-section">
+                        <span class="live-tag">LIVE</span>
+                        <div class="contestant-info">
+                            <span class="number">47</span>
+                            <span class="label">Contestant</span>
+                        </div>
+                        <div class="character-image-placeholder">
+                            </div>
+                    </div>
+                    
+                    <div class="video-player">
+                        <div class="video-thumbnail">
+                            <span class="official-tag">GGDC.Official</span>
+                            <p class="video-title" style="padding-right: 30px;">The Popular Slugs rankings are out now! <span>NEWS</span></p>
+                            <span class="play-icon" onclick="window.open('http://youtu.be/yau7DUDktXU', '_blank')" style="cursor: pointer;">▶</span>
+                        </div>
+                        <div class="video-controls">
+                            </div>
+                    </div>
+                    
+                    <div class="duel-channel-info">
+                        <span class="channel-name">Duel Channel</span>
+                        <span class="subscribers">1M+ Subscribers</span>
+                        <button class="subscribed-btn">Subbed</button>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <p class="reminder-text">I've got good news to share!</p>
+                    <div class="ranking-section">
+                        <div class="rank-item rank-1">
+                            <span class="rank-number">1</span>
+                            <div class="rank-image-placeholder"></div>
+                            <span class="rank-name" style="padding-right: 10px;">Scotty Slug</span>
+                        </div>
+                        <div class="rank-item rank-2">
+                            <span class="rank-number">2</span>
+                            <div class="rank-image-placeholder"></div>
+                            <span class="rank-name" style="padding-right: 10px;">Venomous Spider Slug</span>
+                        </div>
+                        <div class="rank-item rank-3">
+                            <span class="rank-number">3</span>
+                            <div class="rank-image-placeholder"></div>
+                            <span class="rank-name" style="padding-right: 10px;">Chocolate Guard Slug</span>
+                        </div>
+                        <div class="rank-item rank-4">
+                            <span class="rank-number">4</span>
+                            <div class="rank-image-placeholder"></div>
+                            <span class="rank-name" style="padding-right: 10px;">Soil Explorer Slug</span>
+                        </div>
+                        <div class="rank-item rank-5">
+                            <span class="rank-number">5</span>
+                            <div class="rank-image-placeholder"></div>
+                            <span class="rank-name" style="padding-right: 10px;">Anis</span>
+                        </div>
+                    </div>
+                    
+                    <div class="announcements-section">
+                        <h4>Announcements</h4>
+                        <p>A new contestant joins the fray!</p>
+                    </div>
+                    
+                    <div class="daily-activity-section">
+                        <p style="padding-right: 40px;">Daily Activity</p>
+                    </div>
+                    
+                    <div class="reward-info-section">
+                        <p>Reward Info</p>
+                        <div class="progress-bar-container">
+                            <div class="weapon-icon-placeholder"></div>
+                            <div class="level-info">
+                                <p style="padding-right: 40px; ">Granville Program Lv.<span">50</span></p>
+                            </div>
+                            <span class="max-tag">MAX</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window-footer">
+                <p class="operation-info">
+                    <span class="status-icon">🟡</span> Operation Ends at: 2025/10/30 03:59
+                </p>
+                <p class="days-remaining">6 days Remaining</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons-container">
+            <a href="stageselect.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button join-group">
+                <span class="button-text">Start</span>
+            </button>
+            </a>
+            <a href="communication.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button create-group">
+                <span class="button-text">Communiction</span>
+            </button>
+            </a>
+          <a href="profile.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button go-streaming">
+                <span class="button-text">Profile</span>
+            </button>
+          </a>
+          <a href="stageselect.html" style="text-decoration: none;" class="button-link">
+            <button class="action-button join-event">
+                <span class="button-text">Setting</span>
+            </button>
+          </a>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+    });
+
+    document.addEventListener('dragstart', function(e){
+        if (e.target.tagName == 'IMG'){
+            e.preventDefault();
+        }
+    });
+</script>
+
+</html>

@@ -1,0 +1,378 @@
+/* stageselectstyle.css */
+
+/* الأنماط العامة وإعدادات الخطوط (تم توحيدها مع mainstyles.css) */
+:root {
+    --primary-yellow: #ffc400; 
+    --secondary-yellow: #f8e12c;
+    --dark-grey: #333; 
+    --medium-grey: #555;
+    --light-grey: #ccc;
+    --white: #fff;
+    --red: #f00;
+    --green: #4caf50;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --border-color: #1a1a1a; 
+    
+    --text-color: var(--white);
+    --dark-bg: #1e1e1e; /* خلفية الشاشة */
+    --window-bg: #222; /* خلفية محتوى النافذة القابلة للتمرير */
+    --overlay-color: rgba(0, 0, 0, 0.6); /* زيادة التعتيم للخلفية */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    direction: rtl; 
+    display: flex; 
+    justify-content: center;
+    align-items: flex-start; /* تغيير ليتناسب مع التمرير */
+    min-height: 100vh;
+}
+
+/* ========================================= */
+/* هيكل الواجهة الرئيسية */
+/* ========================================= */
+
+.game-interface-container {
+    /* تم توحيد هذا مع mainstyles.css */
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 100vh; /* لتغطية كامل الارتفاع */
+    background-color: var(--window-bg); /* خلفية الإطار الداخلي */
+    box-shadow: 0 0 20px var(--shadow-color);
+    display: flex;
+    flex-direction: column; /* ترتيب العناصر عمودياً */
+}
+
+
+/* ========================================= */
+/* 1. قسم الراية العلوية (Header Banner) */
+/* ========================================= */
+
+.header-banner {
+    width: 100%;
+    min-height: 250px; 
+    position: relative;
+    overflow: hidden;
+    background: var(--dark-grey) no-repeat center center/cover; /* الخلفية الافتراضية */
+    transition: background-image 0.5s ease;
+    flex-shrink: 0; /* لمنع تقلصها عند التمرير */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay-color); 
+    z-index: 1;
+}
+
+/* فئات الخلفيات الديناميكية (يجب استبدال الروابط بالصور الخاصة بك) */
+.card-bg-default {
+    background-image: url(assets/1.jpeg); /* خلفية افتراضية */
+}
+.card-bg-1 {
+    background-image: url(assets/2.jpg); 
+}
+.card-bg-2 {
+    background-image: url(assets/4.jpg); 
+}
+.card-bg-3 {
+    background-image: url(assets/3.jpg); 
+}
+/* تنسيق الصورة الموحد للخلفيات */
+.card-bg-default, .card-bg-1, .card-bg-2, .card-bg-3 {
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+
+/* عناصر التحكم داخل البانر */
+.back-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    background-color: #FFD700; /* لون أصفر مشرق */
+    color: #000; /* لون النص أسود للتباين */
+    border: 2px solid #FFA500; /* حدود برتقالية لإضافة عمق */
+    border-radius: 0; /* مستطيل تماماً (بدون زوايا مستديرة) */
+    padding: 5px 23px; /* حجم داخلي مناسب */
+    font-size: 16px; /* حجم خط واضح */
+    font-weight: bold; /* خط عريض */
+    cursor: pointer; /* مؤشر يد عند التمرير */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* تأثيرات انتقال سلسة */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* ظل خفيف لإضافة عمق */
+}
+
+.back-btn:hover {
+    background-color: #FFC107; /* أصفر أفتح عند التمرير */
+    transform: scale(1.05); /* تكبير خفيف عند التمرير */
+}
+
+.back-btn:active {
+    transform: scale(0.95); /* تصغير عند الضغط لإحساس تفاعلي */
+}
+
+
+.side-buttons {
+    display: flex;
+    gap: 5px;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+}
+.circle-btn {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+    z-index: 10;
+}
+
+.main-info {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2;
+    text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+.title-large {
+    font-size: 2.5em; 
+    color: var(--white);
+    line-height: 1.2;
+}
+
+.highlight {
+    color: var(--primary-yellow); 
+}
+
+.channel-motto {
+    font-size: 1em;
+    color: var(--light-grey);
+    margin-top: 5px;
+}
+
+/* ========================================= */
+/* 2. قسم البطاقات (Content Area) */
+/* ========================================= */
+
+.card-section-container {
+    flex-grow: 1; /* للسماح لها بملء المساحة المتبقية */
+    overflow-y: auto; /* لجعل هذا الجزء قابل للتمرير */
+    background-color: var(--window-bg);
+}
+
+.section-title {
+    font-size: 1.4em;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    padding-right: 15px;
+    padding-left: 15px;
+    border-right: 4px solid var(--primary-yellow); 
+    color: var(--light-grey);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.fire-icon {
+    color: var(--red); 
+    font-size: 1.2em;
+}
+
+.card-container {
+    display: flex;
+    flex-direction: column; /* عمودي على الهاتف */
+    gap: 10px; 
+    padding: 0 15px 15px 15px; 
+}
+
+/* توحيد أنماط البطاقة */
+.card {
+    height: 80px; /* تقليل الارتفاع لتناسب العرض الكامل */
+    min-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--border-color); 
+    background-color: var(--dark-grey); /* خلفية احتياطية */
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    
+    /* خلفيات البطاقات الداخلية (يجب استبدال الروابط بالصور الخاصة بك) */
+    background: url(assets/2.jpg) no-repeat center center/cover;
+}
+
+.card:nth-child(2) {
+    background: url(assets/4.jpg) no-repeat center center/cover;
+}
+.card:nth-child(3) {
+    background: url(assets/3.jpg) no-repeat center center/cover;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.card.selected {
+    border: 3px solid var(--primary-yellow); 
+    box-shadow: 0 0 10px rgba(255, 196, 0, 0.8); 
+}
+
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.5); /* تظليل خفيف للقراءة */
+    color: var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-shadow: 1px 1px 3px #000;
+}
+
+.card-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0;
+    color: var(--white);
+    flex-grow: 1; /* ليأخذ أكبر مساحة ممكنة */
+    text-align: right;
+}
+
+.details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9em;
+    color: var(--light-grey);
+    font-weight: bold;
+}
+
+.score-display, .no-scores {
+    font-size: 0.9em;
+    background-color: var(--primary-yellow);
+    color: var(--dark-grey);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.meta {
+    font-size: 0.85em;
+}
+.meta i {
+    color: var(--primary-yellow);
+    margin-left: 5px;
+}
+
+/* ========================================= */
+/* 3. زر بدء اللعب (Window Footer) */
+/* ========================================= */
+.floating-mode-btn {
+    /* تطبيق نمط التذييل الموحد */
+    width: 100%;
+    background-color: var(--dark-grey); /* توحيد الخلفية مع شريط العنوان لـ main.html */
+    color: var(--primary-yellow);
+    border-top: 2px solid var(--border-color);
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    opacity: 0.5; 
+    pointer-events: none;
+    transition: opacity 0.3s, background-color 0.2s;
+    padding: 15px; 
+    flex-shrink: 0; /* لمنعه من التقلص عند التمرير */
+}
+
+.floating-mode-btn {
+    /* تصميم أساسي محسن */
+    background-color: var(--medium-grey); /* خلفية رمادية متوسطة كافتراضي */
+    color: var(--dark-grey); /* لون نص رمادي داكن كافتراضي */
+    border: 2px solid var(--secondary-yellow); /* حدود صفراء ثانوية لإضافة عمق */
+    border-radius: 25px; /* حواف مستديرة (قيمة متوسطة لمظهر دائري نسبياً) */
+    padding: 12px 24px; /* حجم داخلي مناسب للزر */
+    font-size: 16px; /* حجم خط واضح */
+    font-weight: bold; /* خط عريض */
+    cursor: pointer; /* مؤشر يد عند التمرير */
+    transition: all 0.3s ease; /* انتقال سلس لجميع الخصائص */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* ظل خفيف لإضافة عمق */
+    margin-left: 20px; /* مسافة من الحافة اليسرى للشاشة */
+    margin-right: 20px; /* مسافة من الحافة اليمنى للشاشة */
+    /* إذا كان الزر عائماً (floating)، يمكن إضافة position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); لتوسيطه أو تعديل حسب الحاجة */
+}
+
+.floating-mode-btn:hover {
+    background-color: var(--medium-grey);
+    color: var(--secondary-yellow);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* تعزيز الظل عند التمرير */
+    transform: translateY(-2px); /* رفع خفيف لإحساس تفاعلي */
+}
+
+.floating-mode-btn[style*="opacity: 1"] {
+    background-color: var(--primary-yellow);
+    color: var(--dark-grey);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* تعزيز الظل عند التنشيط */
+    transform: translateY(-2px); /* رفع خفيف لإحساس تفاعلي */
+}
+
+
+/* ========================================= */
+/* استجابة الشاشات الأكبر (MOBILE Responsive) */
+/* ========================================= */
+@media (min-width: 601px) {
+    
+    .game-interface-container {
+        height: 90vh; /* تقليل الارتفاع قليلاً على الشاشات الكبيرة */
+        max-height: 800px; /* حد أقصى للارتفاع */
+    }
+    
+    .header-banner {
+        min-height: 200px; /* تقليل ارتفاع الراية قليلاً */
+    }
+
+    .main-info {
+        right: 30px;
+        bottom: 15px;
+    }
+    
+    .card-container {
+        flex-direction: row;
+        flex-wrap: wrap; 
+        justify-content: space-between;
+        padding: 0 15px 15px 15px; 
+    }
+
+    .card {
+        width: 32%; /* عرض ثلاث بطاقات في الصف مع مسافة بينها */
+        height: 120px; 
+    }
+    
+    .floating-mode-btn {
+        /* إبقاء الزر في الأسفل تماماً داخل الحاوية */
+        position: static; 
+        margin-top: auto; 
+    }
+}

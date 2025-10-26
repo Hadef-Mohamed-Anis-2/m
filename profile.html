@@ -14,7 +14,7 @@
     <style>
         /* إضافة أنماط لعرض المنشورات في البروفايل */
         .user-posts-container {
-            max-height: 400px;
+            max-height: auto;
             overflow-y: auto;
             padding: 10px;
             direction: rtl;
@@ -422,6 +422,63 @@
         .tab-content.active {
             display: block;
         }
+
+        /* إضافة أنماط جديدة لشريط التقدم */
+        .level-progress-container {
+            margin-top: 10px;
+            direction: ltr;
+        }
+
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: var(--medium-grey, #555);
+        }
+
+        .level-text {
+            font-weight: bold;
+            color: var(--dark-grey, #333);
+        }
+
+        .xp-text {
+            color: var(--primary-yellow, #ffc400);
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--light-grey, #eee);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-yellow, #ffc400), #ffd700);
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
     </style>
 </head>
 <body>
@@ -450,7 +507,17 @@
                         <div class="profile-icon" id="profile-icon"></div> 
                         <div class="user-details">
                             <span class="username" id="username-display">Guest</span> 
-                            <div class="subscribers">Subscribers <span>0</span></div>
+                            <div class="lvl">Level <span id="level-display">1</span></div>
+                            <!-- إضافة شريط التقدم -->
+                            <div class="level-progress-container">
+                                <div class="level-info">
+                                    <span class="level-text">Level <span id="current-level">1</span></span>
+                                    <span class="xp-text"><span id="current-xp">0</span>/1000 XP</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="profile-actions">
@@ -611,6 +678,123 @@
         let VIEWED_USER = null; // Currently viewed user
         let isViewingOwnProfile = true; // Is user viewing their own profile?
         let isFriend = false; // Is the viewed user a friend of current user?
+
+        // ****************************************************
+        // Level System - NEW
+        // ****************************************************
+        
+        // Constants for level system
+        const XP_PER_LEVEL = 1000;
+
+        // Function to load user level data
+        async function loadUserLevel() {
+            const targetUserId = isViewingOwnProfile ? CURRENT_USER.id : (VIEWED_USER ? VIEWED_USER.id : null);
+            
+            if (!targetUserId) {
+                console.log("❌ Cannot load level - User ID not found");
+                return;
+            }
+
+            try {
+                const userDoc = await db.collection('userLevels').doc(targetUserId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const level = userData.level || 1;
+                    const xp = userData.xp || 0;
+                    
+                    updateLevelDisplay(level, xp);
+                    console.log(`✅ Loaded level data: Level ${level}, XP ${xp}`);
+                } else {
+                    // Create default level data if doesn't exist
+                    await db.collection('userLevels').doc(targetUserId).set({
+                        level: 1,
+                        xp: 0,
+                        userId: targetUserId,
+                        userName: isViewingOwnProfile ? CURRENT_USER.name : VIEWED_USER.name,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updateLevelDisplay(1, 0);
+                    console.log("✅ Created default level data");
+                }
+            } catch (error) {
+                console.error("❌ Error loading user level:", error);
+                // Fallback to default values
+                updateLevelDisplay(1, 0);
+            }
+        }
+
+        // Function to update level display
+        function updateLevelDisplay(level, xp) {
+            const levelDisplay = document.getElementById('level-display');
+            const currentLevel = document.getElementById('current-level');
+            const currentXp = document.getElementById('current-xp');
+            const progressFill = document.getElementById('progress-fill');
+            
+            if (levelDisplay) levelDisplay.textContent = level;
+            if (currentLevel) currentLevel.textContent = level;
+            if (currentXp) currentXp.textContent = xp;
+            
+            // Calculate progress percentage
+            const progressPercentage = Math.min((xp / XP_PER_LEVEL) * 100, 100);
+            if (progressFill) {
+                progressFill.style.width = `${progressPercentage}%`;
+            }
+            
+            console.log(`📊 Level Display: Level ${level}, XP ${xp}, Progress ${progressPercentage}%`);
+        }
+
+        // Function to add XP to current user
+        async function addUserXP(xpToAdd) {
+            if (!CURRENT_USER.id || !isViewingOwnProfile) {
+                console.log("❌ Cannot add XP - Not viewing own profile or user not logged in");
+                return;
+            }
+
+            try {
+                const userRef = db.collection('userLevels').doc(CURRENT_USER.id);
+                const userDoc = await userRef.get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    let currentLevel = userData.level || 1;
+                    let currentXP = userData.xp || 0;
+                    
+                    // Add XP
+                    currentXP += xpToAdd;
+                    
+                    // Check for level up
+                    let levelsGained = 0;
+                    while (currentXP >= XP_PER_LEVEL) {
+                        currentLevel++;
+                        currentXP -= XP_PER_LEVEL;
+                        levelsGained++;
+                    }
+                    
+                    // Update database
+                    await userRef.update({
+                        level: currentLevel,
+                        xp: currentXP,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Update display
+                    updateLevelDisplay(currentLevel, currentXP);
+                    
+                    // Show level up notification if applicable
+                    if (levelsGained > 0) {
+                        showToast('success', 'Level Up!', `Congratulations! You reached level ${currentLevel}!`);
+                    }
+                    
+                    console.log(`🎯 Added ${xpToAdd} XP. New level: ${currentLevel}, XP: ${currentXP}`);
+                    
+                    return { newLevel: currentLevel, newXP: currentXP, levelsGained };
+                }
+            } catch (error) {
+                console.error("❌ Error adding XP:", error);
+                showToast('error', 'XP Error', 'Failed to update experience points');
+            }
+        }
 
         // ****************************************************
         // Toast Notification System
@@ -1231,6 +1415,7 @@
 
             updateFriendButton();
             loadUserPosts();
+            loadUserLevel(); // Load level data
         }
 
         // ****************************************************
@@ -1347,6 +1532,15 @@
             refreshBtn.onclick = reloadPosts;
             document.querySelector('.content-frame').style.position = 'relative';
             document.querySelector('.content-frame').appendChild(refreshBtn);
+
+            // 7. Test XP system (for demonstration)
+            setTimeout(() => {
+                // This is just for testing - remove in production
+                if (isViewingOwnProfile) {
+                    console.log("🧪 Testing XP system...");
+                    // addUserXP(500); // Uncomment to test XP addition
+                }
+            }, 2000);
         });
 
         // ****************************************************
@@ -1361,6 +1555,35 @@
                 e.preventDefault();
             }
         });
+
+        // ****************************************************
+        // Global functions for external use
+        // ****************************************************
+        
+        // Function to add XP from other pages
+        window.addExperiencePoints = async function(xpAmount) {
+            if (!CURRENT_USER.id) {
+                console.log("❌ Cannot add XP - User not logged in");
+                return false;
+            }
+            
+            try {
+                const result = await addUserXP(xpAmount);
+                return result;
+            } catch (error) {
+                console.error("❌ Error adding experience points:", error);
+                return false;
+            }
+        };
+
+        // Function to get current level info
+        window.getCurrentLevelInfo = function() {
+            return {
+                level: parseInt(document.getElementById('current-level')?.textContent || 1),
+                xp: parseInt(document.getElementById('current-xp')?.textContent || 0),
+                xpNeeded: XP_PER_LEVEL
+            };
+        };
     </script>
 </body>
 </html>

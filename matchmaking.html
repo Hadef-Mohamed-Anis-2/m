@@ -77,21 +77,42 @@
     const playerList = document.getElementById('playerList');
     
     // ****************************************************
-    // مفاتيح localStorage
+    // مفاتيح localStorage - محدثة لنظام المستخدم الجديد
     // ****************************************************
     const USER_NAME_KEY = 'game_user_name';
-    const PROFILE_PIC_URL_KEY = 'game_profile_pic_url';
-    const SELECTED_MODE_KEY = 'selectedMode';
+    const USER_ID_KEY = 'game_user_id';
 
-    // 1. جلب بيانات اللاعب الحالي من localStorage
-    const savedUsername = localStorage.getItem(USER_NAME_KEY) || "Gest";
-    const savedPicUrl = localStorage.getItem(PROFILE_PIC_URL_KEY) || "https://via.placeholder.com/100/fddb00/000000?text=G";
+    // دالة للحصول على مفتاح صورة البروفايل للمستخدم الحالي
+    function getProfilePicKey() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest';
+        return `profile_pic_${userId}`;
+    }
 
-    const CURRENT_USER = {
-        username: savedUsername,
-        avatarUrl: savedPicUrl,
-        status: "Ready"
-    };
+    function getGooglePhotoKey() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest';
+        return `google_photo_${userId}`;
+    }
+
+    // دالة للحصول على بيانات المستخدم الحالي
+    function getCurrentUserData() {
+        const userId = localStorage.getItem(USER_ID_KEY) || 'guest_user_' + Math.random().toString(16).slice(2, 8);
+        const userName = localStorage.getItem(USER_NAME_KEY) || 'Guest';
+        
+        // الحصول على صورة البروفايل الخاصة بالمستخدم
+        const profilePicKey = getProfilePicKey();
+        const googlePhotoKey = getGooglePhotoKey();
+        const userProfilePic = localStorage.getItem(profilePicKey);
+        const userGooglePhoto = localStorage.getItem(googlePhotoKey);
+        
+        return {
+            username: userName,
+            avatarUrl: userProfilePic || userGooglePhoto || "https://via.placeholder.com/100/fddb00/000000?text=G",
+            status: "Ready"
+        };
+    }
+
+    // 1. جلب بيانات اللاعب الحالي من localStorage باستخدام النظام الجديد
+    const CURRENT_USER = getCurrentUserData();
     
     // متغيرات الحالة العامة
     let currentPlayers = [CURRENT_USER]; // قائمة اللاعبين المنضمين حالياً
@@ -179,11 +200,15 @@
             // تحقق من اكتمال العدد
             if (currentPlayers.length === maxFill) {
                 clearInterval(botJoinInterval);
-                statusText.textContent = 'Match Ready! Waiting for START...';
+                statusText.textContent = 'Match Ready!...';
                 // حفظ ID لتنظيفه عند الإلغاء
                 localStorage.setItem('botJoinIntervalId', botJoinInterval); 
+                setTimeout(() => {
+                window.location.href = 'sologame.html';
+            }, 1000);
+
             }
-        }, 1500); // بوت كل 1.5 ثانية
+        }, 1000); // بوت كل 1.5 ثانية
     }
 
 
@@ -224,7 +249,7 @@
     const bgClass = localStorage.getItem('selectedCardBgClass');
     const maxPlayers = localStorage.getItem('maxPlayers');
     const gameTitle = localStorage.getItem('selectedCardTitle') || 'Matchmake Guess Royale';
-    const selectedMode = localStorage.getItem(SELECTED_MODE_KEY);
+    const selectedMode = localStorage.getItem('selectedMode');
 
 
     // تطبيق البيانات المحفوظة
@@ -241,8 +266,8 @@
     // عرض اللاعب الحالي أولاً
     updatePlayerList(); 
 
-    // بدء العد التنازلي لـ 5 ثواني
-    let currentCount = 5;
+    // بدء العد التنازلي لـ 3 ثواني
+    let currentCount = 3;
     countdownInterval = setInterval(() => {
         currentCount--;
         timerSpan.textContent = `${currentCount}S`;
